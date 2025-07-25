@@ -6,3 +6,6 @@ export const generateRandomText = (count: number = 25) => {
 		() => commonWords[Math.floor(Math.random() * commonWords.length)]
 	);
 };
+
+// Export progress utilities
+export * from './progress';

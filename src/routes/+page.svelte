@@ -8,6 +8,7 @@
 	import Filter from '$lib/features/home/components/filter.svelte';
 	import Tooltip from '$lib/components/ui/tooltip.svelte';
 	import KeyboardDisplay from '$lib/features/home/components/keyboard-display.svelte';
+	import ProgressIndicator from '$lib/features/home/components/progress-indicator.svelte';
 	import { themes } from '$lib/data';
 	import Header from '$lib/components/header.svelte';
 	import { customPracticeStore } from '$lib/stores/custom-practice-store';
@@ -281,6 +282,16 @@
 					currentText={gameStates.currentText}
 					userInput={gameStates.userInput}
 					currentWordIndex={gameStates.currentWordIndex}
+				/>
+				
+				<!-- Progress Indicator - shows typing progress as percentage -->
+				<ProgressIndicator
+					currentText={gameStates.currentText}
+					userInput={gameStates.userInput}
+					currentWordIndex={gameStates.currentWordIndex}
+					{gameTheme}
+					isPlaying={gameStates.isPlaying}
+					isPending={gameStates.isPending}
 				/>
 				{#if gameStates.isPending}
 					<div class="mt-10 flex flex-col items-center justify-center gap-y-5">
