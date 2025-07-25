@@ -1,28 +1,27 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import DocumentManager from '$lib/features/documents/document-manager.svelte';
+	import { customPracticeStore } from '$lib/stores/custom-practice-store';
+	import { documentStore } from '$lib/stores/document-store';
 	import type { DocumentWithPerformance } from '../../type';
 
 	/**
 	 * Handle starting practice with a document
-	 * This would integrate with your existing typing practice component
+	 * This integrates with the main typing practice component
 	 */
 	const handleStartPractice = (document: DocumentWithPerformance) => {
 		console.log('Starting practice with document:', document.title);
-		// Here you would:
-		// 1. Navigate to the practice route/component
-		// 2. Pass the document content to your typing test component
-		// 3. Set up the typing test with the custom text
 		
-		// Example integration:
-		// goto(`/practice?documentId=${document.id}`);
-		// OR
-		// Set some global state that the practice component can read
-		alert(`Practice mode would start with: "${document.title}"\n\nContent preview: ${document.content.substring(0, 100)}...`);
+		// Set up custom practice in the store
+		customPracticeStore.startCustomPractice(document);
+		
+		// Navigate to the main typing practice page
+		goto('/');
 	};
 
 	/**
 	 * Handle saving performance data after a practice session
-	 * This would be called from your typing practice component
+	 * This is called from the main typing practice component
 	 */
 	const handleSavePerformance = (
 		documentId: string, 
@@ -35,11 +34,19 @@
 		}
 	) => {
 		console.log('Saving performance for document:', documentId, performance);
-		// The DocumentManager component will handle saving to localStorage automatically
-		// You might also want to:
-		// 1. Show a success notification
-		// 2. Navigate back to the document list
-		// 3. Update any global state
+		
+		// Save performance to the document store
+		documentStore.addPerformance(
+			documentId,
+			performance.wpm,
+			performance.accuracy,
+			performance.correctChars,
+			performance.totalChars,
+			performance.timeElapsed
+		);
+		
+		// Show success message
+		alert(`Performance saved!\nWPM: ${performance.wpm}\nAccuracy: ${performance.accuracy.toFixed(1)}%`);
 	};
 </script>
 
