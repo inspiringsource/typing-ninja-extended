@@ -15,3 +15,32 @@ export type GameState = {
 	totalGenerateWords: number;
 	mode: 'time' | 'words';
 };
+
+// Document Manager Types
+export type Document = {
+	id: string;
+	title: string;
+	content: string;
+	tags: string[];
+	createdAt: Date;
+	updatedAt: Date;
+};
+
+export type PerformanceRecord = {
+	id: string;
+	documentId: string;
+	wpm: number;
+	accuracy: number;
+	correctChars: number;
+	totalChars: number;
+	timeElapsed: number;
+	completedAt: Date;
+};
+
+export type DocumentWithPerformance = Document & {
+	performances: PerformanceRecord[];
+	bestWpm?: number;
+	bestAccuracy?: number;
+	averageWpm?: number;
+	averageAccuracy?: number;
+};

@@ -11,12 +11,20 @@
 		<a href="/" class="text-lg text-gray-400 transition-all hover:text-yellow-500">
 			Typing-Ninja 🥷⌨️
 		</a>
-		<a href="https://github.com/Kei-K23/typing-ninja" target="_blank">
-			<img
-				src="/github.svg"
-				alt="github"
-				class="size-7 opacity-60 transition-all hover:opacity-100"
-			/>
-		</a>
+		<nav class="flex items-center gap-4">
+			<a 
+				href="/documents" 
+				class="text-sm text-gray-400 transition-all hover:text-yellow-500"
+			>
+				📚 Documents
+			</a>
+			<a href="https://github.com/Kei-K23/typing-ninja" target="_blank">
+				<img
+					src="/github.svg"
+					alt="github"
+					class="size-7 opacity-60 transition-all hover:opacity-100"
+				/>
+			</a>
+		</nav>
 	</div>
 </header>
