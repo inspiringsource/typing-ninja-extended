@@ -9,7 +9,7 @@
 <header class="py-4" class:opacity-0={!isPending}>
 	<div class="mx-auto flex max-w-6xl items-center justify-between">
 		<a href="/" class="text-lg text-gray-400 transition-all hover:text-yellow-500">
-			Typing-Ninja 🥷⌨️
+			Typing-Ninja-Extended ⌨️
 		</a>
 		<nav class="flex items-center gap-4">
 			<a 
