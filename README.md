@@ -1,4 +1,4 @@
-# Typing Ninja Extended 🥷⌨️
+# Typing Ninja Extended 🥷⌨️🚀
 
 This project is an enhanced version of the open-source [Typing Ninja](https://typing-ninja-two.vercel.app) typing speed testing web application.
 
@@ -9,6 +9,7 @@ It builds upon Typing Ninja’s minimalistic design and customization by adding:
 * Ability to track and review typing progress per document
 * Basic filtering and searching of documents by tags
 * Integration-ready structure for practicing typing on user-managed documents
+* Display progress as a percentage
 
 ## Original Tech Stack
 
