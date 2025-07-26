@@ -1,4 +1,4 @@
-# Typing Ninja Extended 🥷⌨️🚀
+# Typing Ninja Extended 🥷⌨️📚
 
 Build upon Typing Ninja’s minimalistic app with:
 
