@@ -1,7 +1,6 @@
 # Typing Ninja Extended 🥷⌨️🚀
-Your README looks very clear and well-structured! Here are a few small polish suggestions to improve clarity and formatting consistency, but overall it’s great:
 
-It builds upon Typing Ninja’s minimalistic design and customization by adding:
+Build upon Typing Ninja’s minimalistic app with:
 
 * A **Document Manager** to add, import, and organize typing texts with titles and tags
 * Persistent storage of documents and typing performance data in `localStorage`
