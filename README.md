@@ -7,7 +7,6 @@ Build upon Typing Ninja’s minimalistic app with:
 * Ability to track and review typing progress per document
 * Basic filtering and searching of documents by tags
 * Integration-ready structure for practicing typing on user-managed documents
-* Display progress as a percentage
 
 ---
 
