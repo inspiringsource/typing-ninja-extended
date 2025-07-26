@@ -1,6 +1,5 @@
 # Typing Ninja Extended 🥷⌨️🚀
-
-This project is an enhanced version of the open-source [Typing Ninja](https://typing-ninja-two.vercel.app) typing speed testing web application.
+Your README looks very clear and well-structured! Here are a few small polish suggestions to improve clarity and formatting consistency, but overall it’s great:
 
 It builds upon Typing Ninja’s minimalistic design and customization by adding:
 
@@ -11,12 +10,43 @@ It builds upon Typing Ninja’s minimalistic design and customization by adding:
 * Integration-ready structure for practicing typing on user-managed documents
 * Display progress as a percentage
 
+---
+
 ## Original Tech Stack
 
 * **Svelte 5 + SvelteKit** (Using `runes`)
 * **TailwindCSS**
 
-> *Note:* The extended version may use additional React components and localStorage management for document handling.
+---
+
+## Installation
+
+To run this project locally, run the following commands:
+
+```bash
+npm install
+```
+
+---
+
+## Local Hosting
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+This command starts a local hosting server.
+
+---
+
+## Run in Browser
+
+Open your favorite browser and navigate to:
+`http://localhost:5173/`
+
+---
 
 ## Features (Extended)
 
@@ -26,13 +56,14 @@ It builds upon Typing Ninja’s minimalistic design and customization by adding:
 * User-friendly interface for managing multiple practice texts
 * Designed to be modular and extensible
 
+---
+
 ## Try Typing Ninja
 
 Original project: [https://typing-ninja-two.vercel.app](https://typing-ninja-two.vercel.app)
 
-## Contributing
+---
 
-Contributions, feedback, and bug reports are welcome! Please open issues or pull requests to help improve the project.
 
 ## License
 
