@@ -273,6 +273,26 @@
 						</div>
 					{:else}
 						<Filter bind:gameStates bind:gameTheme />
+						
+						<!-- Mode Selection -->
+						<div class="mb-4 text-center">
+							<div class="inline-flex items-center gap-2 text-sm">
+								<span class="text-gray-500 dark:text-gray-400">Try different modes:</span>
+								<a 
+									href="/formatted" 
+									class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+								>
+									💻 Formatted Text Mode
+								</a>
+								<span class="text-gray-400">•</span>
+								<a 
+									href="/documents" 
+									class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+								>
+									📚 Documents
+								</a>
+							</div>
+						</div>
 					{/if}
 				{/if}
 				<Timer isPending={gameStates.isPending} timeElapsed={gameStates.timeElapsed} />

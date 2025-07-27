@@ -12,7 +12,7 @@ Build upon Typing Ninja’s minimalistic app with:
 
 ## Original Tech Stack
 
-* **Svelte 5 + SvelteKit** (Using `runes`)
+* **Svelte 5 + SvelteKit**
 * **TailwindCSS**
 
 ---
@@ -52,7 +52,11 @@ Open your favorite browser and navigate to:
 * Document management system with tagging and filtering
 * Persistent saving of documents and revision statistics
 * User-friendly interface for managing multiple practice texts
-* Designed to be modular and extensible
+* **Formatted Text Mode:** Support for code formatting and structured documents with preserved indentation, line breaks, and tabs
+* **Flexible Tab Handling:** In formatted mode, users can press Tab or type 4 spaces - both are accepted as correct
+* **Two Practice Modes:**
+  * Regular mode for normal text (word-based)
+  * Formatted mode for code and structured text (character-based with formatting preservation)
 
 ---
 

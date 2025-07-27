@@ -31,6 +31,7 @@
 	// Props for integration with typing practice
 	interface Props {
 		onStartPractice?: (document: DocumentWithPerformance) => void;
+		onStartFormattedPractice?: (document: DocumentWithPerformance) => void;
 		onSavePerformance?: (documentId: string, performance: {
 			wpm: number;
 			accuracy: number;
@@ -40,7 +41,7 @@
 		}) => void;
 	}
 
-	let { onStartPractice, onSavePerformance }: Props = $props();
+	let { onStartPractice, onStartFormattedPractice, onSavePerformance }: Props = $props();
 
 	/**
 	 * Load documents and update available tags
@@ -121,6 +122,19 @@
 			onStartPractice(document);
 		} else {
 			// Default behavior - switch to practice view
+			selectedDocument = document;
+			currentView = 'practice';
+		}
+	};
+
+	/**
+	 * Handle starting formatted practice with a document
+	 */
+	const handleStartFormattedPractice = (document: DocumentWithPerformance) => {
+		if (onStartFormattedPractice) {
+			onStartFormattedPractice(document);
+		} else {
+			// Default behavior - same as regular practice for now
 			selectedDocument = document;
 			currentView = 'practice';
 		}
@@ -272,6 +286,7 @@
 					documents={filteredDocuments}
 					onSelect={handleSelectDocument}
 					onStartPractice={handleStartPractice}
+					onStartFormattedPractice={handleStartFormattedPractice}
 					onDelete={handleDeleteDocument}
 				/>
 			</div>

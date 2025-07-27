@@ -16,10 +16,11 @@
 		documents: DocumentWithPerformance[];
 		onSelect: (document: DocumentWithPerformance) => void;
 		onStartPractice: (document: DocumentWithPerformance) => void;
+		onStartFormattedPractice?: (document: DocumentWithPerformance) => void;
 		onDelete: (documentId: string) => void;
 	}
 
-	let { documents, onSelect, onStartPractice, onDelete }: Props = $props();
+	let { documents, onSelect, onStartPractice, onStartFormattedPractice, onDelete }: Props = $props();
 
 	/**
 	 * Format date for display
@@ -73,13 +74,27 @@
 							>
 								👁️
 							</button>
-							<button
-								class="action-btn action-practice"
-								onclick={() => onStartPractice(document)}
-								title="Start typing practice"
-							>
-								⌨️
-							</button>
+							
+							<!-- Practice Options -->
+							<div class="practice-dropdown">
+								<button
+									class="action-btn action-practice"
+									onclick={() => onStartPractice(document)}
+									title="Start regular typing practice"
+								>
+									⌨️
+								</button>
+								{#if onStartFormattedPractice}
+									<button
+										class="action-btn action-formatted-practice"
+										onclick={() => onStartFormattedPractice?.(document)}
+										title="Start formatted typing practice (preserves spacing, tabs, line breaks)"
+									>
+										💻
+									</button>
+								{/if}
+							</div>
+							
 							<button
 								class="action-btn action-delete"
 								onclick={() => onDelete(document.id)}
@@ -238,6 +253,16 @@
 	.action-btn:hover {
 		border-color: #3182ce;
 		background: #f7fafc;
+	}
+
+	.practice-dropdown {
+		display: flex;
+		gap: 0.25rem;
+	}
+
+	.action-formatted-practice:hover {
+		border-color: #d69e2e;
+		background: #fef5e7;
 	}
 
 	.action-delete:hover {

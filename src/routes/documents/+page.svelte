@@ -2,21 +2,36 @@
 	import { goto } from '$app/navigation';
 	import DocumentManager from '$lib/features/documents/document-manager.svelte';
 	import { customPracticeStore } from '$lib/stores/custom-practice-store';
+	import { customPracticeStore as formattedCustomPracticeStore } from '$lib/stores/custom-practice-store-formatted';
 	import { documentStore } from '$lib/stores/document-store';
 	import type { DocumentWithPerformance } from '../../type';
 
 	/**
-	 * Handle starting practice with a document
+	 * Handle starting practice with a document (regular mode)
 	 * This integrates with the main typing practice component
 	 */
 	const handleStartPractice = (document: DocumentWithPerformance) => {
-		console.log('Starting practice with document:', document.title);
+		console.log('Starting regular practice with document:', document.title);
 		
 		// Set up custom practice in the store
 		customPracticeStore.startCustomPractice(document);
 		
 		// Navigate to the main typing practice page
 		goto('/');
+	};
+
+	/**
+	 * Handle starting formatted practice with a document
+	 * This integrates with the formatted typing practice component
+	 */
+	const handleStartFormattedPractice = (document: DocumentWithPerformance) => {
+		console.log('Starting formatted practice with document:', document.title);
+		
+		// Set up formatted custom practice in the store
+		formattedCustomPracticeStore.startCustomPractice(document, true);
+		
+		// Navigate to the formatted typing practice page
+		goto('/formatted');
 	};
 
 	/**
@@ -58,6 +73,7 @@
 <div class="documents-page">
 	<DocumentManager
 		onStartPractice={handleStartPractice}
+		onStartFormattedPractice={handleStartFormattedPractice}
 		onSavePerformance={handleSavePerformance}
 	/>
 </div>
