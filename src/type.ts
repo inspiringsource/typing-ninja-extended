@@ -17,14 +17,10 @@ export type GameState = {
 };
 
 // Enhanced GameState for formatted text support
-export type FormattedGameState = {
-	isPlaying: boolean;
-	isFinish: boolean;
-	isPending: boolean;
-	isShowKeyboard: boolean;
-	currentText: string; // Single string to preserve formatting
-	currentCharIndex: number; // Track character position instead of word position
-	userInput: string; // Single string for user input
+export interface FormattedGameState {
+	currentText: string;
+	currentCharIndex: number;
+	userInput: string;
 	accuracy: number;
 	wpm: number;
 	correctChars: number;
@@ -33,8 +29,13 @@ export type FormattedGameState = {
 	timeElapsedMode: number;
 	totalGenerateWords: number;
 	mode: 'time' | 'words';
-	isFormattedMode: boolean; // Flag to indicate formatted text mode
-};
+	isPlaying: boolean;
+	isFinish: boolean;
+	isPending: boolean;
+	isShowKeyboard: boolean;
+	isFormattedMode: boolean;
+	isSyntaxHighlighted: boolean;
+}
 
 // Document Manager Types
 export type Document = {

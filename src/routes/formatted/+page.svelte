@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { generateRandomText } from '$lib/utils';
 	import TextDisplayFormatted from '$lib/features/home/components/text-display-formatted.svelte';
+	import TextDisplaySyntaxHighlighted from '$lib/features/home/components/text-display-syntax-highlighted.svelte';
 	import Timer from '$lib/features/home/components/timer.svelte';
 	import type { FormattedGameState } from '../../type';
 	import Result from '$lib/features/home/components/result.svelte';
@@ -30,7 +31,8 @@
 		isFinish: false,
 		isPending: true,
 		isShowKeyboard: true,
-		isFormattedMode: true
+		isFormattedMode: true,
+		isSyntaxHighlighted: false
 	});
 
 	let gameTheme = $state(themes[0]);
@@ -322,6 +324,17 @@ console.log(fibonacci(10));`;
 							<span class="font-medium">Formatted Practice:</span>
 							<span class="font-bold">{customPracticeState.document?.title}</span>
 						</div>
+						<div class="mt-3 flex justify-center gap-4">
+							<button
+								onclick={() => {
+									gameStates.isSyntaxHighlighted = !gameStates.isSyntaxHighlighted;
+								}}
+								class="inline-flex items-center gap-2 rounded-md px-3 py-1 text-sm font-medium transition-colors {gameStates.isSyntaxHighlighted ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'} hover:bg-purple-200 dark:hover:bg-purple-800"
+							>
+								<span class="text-xs">🎨</span>
+								{gameStates.isSyntaxHighlighted ? 'Disable' : 'Enable'} Syntax Highlighting
+							</button>
+						</div>
 						<div class="mt-2 flex justify-center gap-4">
 							<button
 								onclick={() => {
@@ -360,12 +373,21 @@ console.log(fibonacci(10));`;
 				
 				<Timer isPending={gameStates.isPending} timeElapsed={gameStates.timeElapsed} />
 
-				<TextDisplayFormatted
-					{gameTheme}
-					currentText={gameStates.currentText}
-					userInput={gameStates.userInput}
-					currentCharIndex={gameStates.currentCharIndex}
-				/>
+				{#if gameStates.isSyntaxHighlighted}
+					<TextDisplaySyntaxHighlighted
+						{gameTheme}
+						currentText={gameStates.currentText}
+						userInput={gameStates.userInput}
+						currentCharIndex={gameStates.currentCharIndex}
+					/>
+				{:else}
+					<TextDisplayFormatted
+						{gameTheme}
+						currentText={gameStates.currentText}
+						userInput={gameStates.userInput}
+						currentCharIndex={gameStates.currentCharIndex}
+					/>
+				{/if}
 				
 				{#if gameStates.isPending}
 					<div class="mt-10 flex flex-col items-center justify-center gap-y-5">

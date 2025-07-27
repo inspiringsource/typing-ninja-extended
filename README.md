@@ -53,10 +53,11 @@ Open your favorite browser and navigate to:
 * Persistent saving of documents and revision statistics
 * User-friendly interface for managing multiple practice texts
 * **Formatted Text Mode:** Support for code formatting and structured documents with preserved indentation, line breaks, and tabs
+* **Syntax Highlighting:** Real-time code syntax highlighting for multiple programming languages (JavaScript, TypeScript, Python, Java) with automatic language detection
 * **Flexible Tab Handling:** In formatted mode, users can press Tab or type 4 spaces - both are accepted as correct
 * **Two Practice Modes:**
   * Regular mode for normal text (word-based)
-  * Formatted mode for code and structured text (character-based with formatting preservation)
+  * Formatted mode for code and structured text (character-based with formatting preservation and optional syntax highlighting)
 
 ---
 
