@@ -1,6 +1,6 @@
 # Typing Ninja Extended 🥷⌨️📚
 
-Build upon Typing Ninja’s minimalistic app with:
+Build upon Typing Ninja's minimalistic app with:
 
 * A **Document Manager** to add, import, and organize typing texts with titles and tags
 * Persistent storage of documents and typing performance data in `localStorage`
@@ -22,7 +22,7 @@ Build upon Typing Ninja’s minimalistic app with:
 To run this project locally, run the following commands:
 
 ```bash
-npm install
+pnpm install
 ```
 
 ---
@@ -32,7 +32,7 @@ npm install
 Start the development server:
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 This command starts a local hosting server.
