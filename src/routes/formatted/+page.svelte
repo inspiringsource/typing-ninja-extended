@@ -46,6 +46,9 @@
 		customText: '',
 		isFormattedText: false
 	});
+	
+	// Syntax highlighting toggle protection
+	let syntaxToggleInProgress = $state(false);
 
 	// Subscribe to formatted custom practice store
 	formattedCustomPracticeStore.subscribe(state => {
@@ -302,6 +305,20 @@ console.log(fibonacci(10));`;
 
 	// Initialize the game state
 	initGame();
+	
+	// Protected syntax highlighting toggle
+	function toggleSyntaxHighlighting() {
+		if (syntaxToggleInProgress) return; // Prevent rapid toggling
+		if (gameStates.isPlaying) return; // Prevent toggling while typing
+		
+		syntaxToggleInProgress = true;
+		gameStates.isSyntaxHighlighted = !gameStates.isSyntaxHighlighted;
+		
+		// Release the lock after a short delay
+		setTimeout(() => {
+			syntaxToggleInProgress = false;
+		}, 200);
+	}
 </script>
 
 <svelte:head>
@@ -326,10 +343,10 @@ console.log(fibonacci(10));`;
 						</div>
 						<div class="mt-3 flex justify-center gap-4">
 							<button
-								onclick={() => {
-									gameStates.isSyntaxHighlighted = !gameStates.isSyntaxHighlighted;
-								}}
-								class="inline-flex items-center gap-2 rounded-md px-3 py-1 text-sm font-medium transition-colors {gameStates.isSyntaxHighlighted ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'} hover:bg-purple-200 dark:hover:bg-purple-800"
+								onclick={toggleSyntaxHighlighting}
+								disabled={syntaxToggleInProgress || gameStates.isPlaying}
+								class="inline-flex items-center gap-2 rounded-md px-3 py-1 text-sm font-medium transition-colors {gameStates.isSyntaxHighlighted ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'} hover:bg-purple-200 dark:hover:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed"
+								title={gameStates.isPlaying ? 'Cannot change highlighting during typing' : 'Toggle syntax highlighting'}
 							>
 								<span class="text-xs">🎨</span>
 								{gameStates.isSyntaxHighlighted ? 'Disable' : 'Enable'} Syntax Highlighting

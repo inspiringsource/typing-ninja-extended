@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { Theme } from '$lib/data';
 import { highlightCode, detectLanguage, getTokenColor } from '$lib/utils/syntax-highlighter';
+import { onDestroy } from 'svelte';
 
 interface Props {
 	currentText: string;
@@ -15,25 +16,29 @@ let containerRef: HTMLDivElement | null = $state(null);
 let currentCharRef: HTMLSpanElement | null = $state(null);
 let highlightedChars: any[] = $state([]);
 let detectedLang = $state('');
+let lastProcessedText = $state('');
 
-	// Highlight the code when text changes
-	$effect(() => {
-		if (currentText) {
-			detectedLang = language || detectLanguage(currentText);
-			try {
-				highlightedChars = highlightCode(currentText, detectedLang as any);
-			} catch (error) {
-				console.warn('Syntax highlighting failed, using plain text:', error);
-				// Fallback to plain highlighting
-				highlightedChars = currentText.split('').map((char, index) => ({
-					char,
-					type: 'plain',
-					className: 'token-plain',
-					charIndex: index
-				}));
-			}
+// Highlight the code when text changes - but only when it actually changes
+$effect(() => {
+	// Only re-highlight if the text actually changed
+	if (currentText && currentText !== lastProcessedText) {
+		lastProcessedText = currentText;
+		detectedLang = language || detectLanguage(currentText);
+		
+		try {
+			highlightedChars = highlightCode(currentText, detectedLang as any);
+		} catch (error) {
+			console.warn('Syntax highlighting failed, using plain text:', error);
+			// Fallback to plain highlighting
+			highlightedChars = currentText.split('').map((char, index) => ({
+				char,
+				type: 'plain',
+				className: 'token-plain',
+				charIndex: index
+			}));
 		}
-	});// Simple character status mapping without complex tab logic
+	}
+});// Simple character status mapping without complex tab logic
 let charsWithStatus = $derived.by(() => {
 	if (!highlightedChars.length) return [];
 	
@@ -46,6 +51,7 @@ let charsWithStatus = $derived.by(() => {
 		if (charIndex < currentCharIndex) {
 			// Character has been typed - check if it's correct
 			const userChar = userInput[charIndex];
+			// Simple character matching - avoid complex logic that could cause issues
 			status = userChar === char ? 'correct' : 'incorrect';
 		} else if (charIndex === currentCharIndex) {
 			status = 'current';
@@ -67,21 +73,46 @@ let charsWithStatus = $derived.by(() => {
 
 // Optimized scrolling - only scroll when current character changes and is out of view
 let lastCurrentIndex = $state(-1);
+let scrollTimeoutId = $state<number | null>(null);
+
 $effect(() => {
-	if (currentCharIndex !== lastCurrentIndex && currentCharIndex !== -1) {
+	// Only proceed if the currentCharIndex actually changed and it's valid
+	if (currentCharIndex !== lastCurrentIndex && currentCharIndex >= 0) {
 		lastCurrentIndex = currentCharIndex;
-		// Use a small delay to ensure DOM is updated
-		setTimeout(() => {
+		
+		// Clear any existing timeout to prevent multiple scroll attempts
+		if (scrollTimeoutId) {
+			clearTimeout(scrollTimeoutId);
+		}
+		
+		// Use a timeout to debounce scroll requests and ensure DOM is updated
+		scrollTimeoutId = setTimeout(() => {
 			if (containerRef && currentCharRef) {
 				const containerRect = containerRef.getBoundingClientRect();
 				const charRect = currentCharRef.getBoundingClientRect();
 
-				// Only scroll if current character is completely out of view
-				if (charRect.bottom > containerRect.bottom + 20 || charRect.top < containerRect.top - 20) {
-					currentCharRef.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				// More conservative scrolling - larger buffer and only if completely out of view
+				const buffer = 50;
+				const isOutOfView = charRect.bottom > containerRect.bottom + buffer || 
+				                   charRect.top < containerRect.top - buffer;
+				
+				if (isOutOfView) {
+					currentCharRef.scrollIntoView({ 
+						behavior: 'smooth', 
+						block: 'center',
+						inline: 'nearest'
+					});
 				}
 			}
-		}, 10);
+			scrollTimeoutId = null;
+		}, 50); // Increased delay to reduce frequency
+	}
+});
+
+// Cleanup timeout on component destruction
+onDestroy(() => {
+	if (scrollTimeoutId) {
+		clearTimeout(scrollTimeoutId);
 	}
 });
 </script>
