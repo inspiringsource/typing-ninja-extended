@@ -25,6 +25,12 @@ To run this project locally, run the following commands:
 pnpm install
 ```
 
+or
+
+```bash
+npm install
+```
+
 ---
 
 ## Local Hosting
