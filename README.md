@@ -3,6 +3,7 @@
 Build upon Typing Ninja's minimalistic app with:
 
 - A **Document Manager** to add, import, and organize typing texts with titles and tags
+- **Code Practice Mode** — practice typing real source code with preserved indentation and optional syntax highlighting
 - Persistent storage of documents and typing performance data in `localStorage`
 - Ability to track and review typing progress per document
 - Basic filtering and searching of documents by tags
@@ -57,12 +58,12 @@ Open your favorite browser and navigate to:
 - Document management system with tagging and filtering
 - Persistent saving of documents and revision statistics
 - User-friendly interface for managing multiple practice texts
-- **Formatted Text Mode:** Support for code formatting and structured documents with preserved indentation, line breaks, and tabs
+- **Code Practice Mode (Formatted):** Practice typing real source code (e.g. Java) with preserved indentation, line breaks, and tabs
 - **Syntax Highlighting:** Real-time code syntax highlighting for multiple programming languages (JavaScript, TypeScript, Python, Java) with automatic language detection
-- **Flexible Tab Handling:** In formatted mode, users can press Tab or type 4 spaces - both are accepted as correct
+- **Flexible Tab Handling:** In Code Practice mode, users can press Tab or type 4 spaces - both are accepted as correct
 - **Two Practice Modes:**
   - Regular mode for normal text (word-based)
-  - Formatted mode for code and structured text (character-based with formatting preservation and optional syntax highlighting)
+  - Code Practice mode for code and structured text (character-based with formatting preservation and optional syntax highlighting)
 
 ---
 

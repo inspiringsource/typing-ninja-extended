@@ -333,10 +333,10 @@ console.log(fibonacci(10));`;
 </script>
 
 <svelte:head>
-	<title>Typing-Ninja - Formatted Text Mode</title>
+	<title>Typing-Ninja - Code Practice Mode</title>
 	<meta
 		name="description"
-		content="Typing Ninja with support for formatted text, code snippets, and preserved formatting."
+		content="Typing Ninja with support for code practice, snippets, and preserved formatting."
 	/>
 </svelte:head>
 
@@ -351,7 +351,7 @@ console.log(fibonacci(10));`;
 							class="inline-flex items-center gap-2 rounded-lg bg-blue-100 px-4 py-2 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
 						>
 							<span class="text-lg">📄</span>
-							<span class="font-medium">Formatted Practice:</span>
+							<span class="font-medium">Code Practice:</span>
 							<span class="font-bold">{customPracticeState.document?.title}</span>
 						</div>
 						<div class="mt-3 flex justify-center gap-4">
@@ -393,7 +393,7 @@ console.log(fibonacci(10));`;
 							class="inline-flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-green-800 dark:bg-green-900 dark:text-green-200"
 						>
 							<span class="text-lg">💻</span>
-							<span class="font-medium">Formatted Text Mode</span>
+							<span class="font-medium">Code Practice Mode (Formatted)</span>
 							<span class="text-sm">(Preserves tabs, spaces, and line breaks)</span>
 						</div>
 						<div class="mt-2">
@@ -458,7 +458,7 @@ console.log(fibonacci(10));`;
 						class="inline-flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-green-800 dark:bg-green-900 dark:text-green-200"
 					>
 						<span class="text-lg">🎉</span>
-						<span class="font-medium">Formatted Practice Completed!</span>
+						<span class="font-medium">Code Practice Completed!</span>
 					</div>
 					{#if customPracticeState.isCustomPractice}
 						<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">

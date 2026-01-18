@@ -290,7 +290,7 @@
 									href="/formatted"
 									class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
 								>
-									💻 Formatted Text Mode
+									💻 Code Practice Mode (Formatted)
 								</a>
 								<span class="text-gray-400">•</span>
 								<a

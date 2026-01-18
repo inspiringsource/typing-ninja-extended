@@ -125,8 +125,8 @@
 									<button
 										class="action-btn action-formatted-practice"
 										onclick={() => onStartFormattedPractice?.(document)}
-										title="Start formatted typing practice"
-										aria-label="Start formatted typing practice"
+										title="Start code practice (formatted)"
+										aria-label="Start code practice (formatted)"
 									>
 										💻
 									</button>
