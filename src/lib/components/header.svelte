@@ -12,10 +12,7 @@
 			Typing-Ninja-Extended 🥷⌨📚
 		</a>
 		<nav class="flex items-center gap-4">
-			<a 
-				href="/documents" 
-				class="text-sm text-gray-400 transition-all hover:text-yellow-500"
-			>
+			<a href="/documents" class="text-sm text-gray-400 transition-all hover:text-yellow-500">
 				📚 Documents
 			</a>
 			<a href="https://github.com/Kei-K23/typing-ninja" target="_blank">

@@ -11,7 +11,8 @@
 		isPending: boolean;
 	}
 
-	let { currentText, userInput, currentWordIndex, gameTheme, isPlaying, isPending }: Props = $props();
+	let { currentText, userInput, currentWordIndex, gameTheme, isPlaying, isPending }: Props =
+		$props();
 
 	/**
 	 * Calculate progress using utility function
@@ -60,10 +61,10 @@
 					{progressData.progressPercentage}%
 				</span>
 			</div>
-			
+
 			<!-- Progress Bar -->
 			<div class="progress-bar-container {gameTheme.accentBackgroundColor}">
-				<div 
+				<div
 					class="progress-bar-fill"
 					class:bg-green-500={progressData.status === 'complete'}
 					class:bg-blue-500={progressData.status === 'high'}
@@ -73,7 +74,7 @@
 					style="width: {Math.min(progressData.progressPercentage, 100)}%"
 				></div>
 			</div>
-			
+
 			<!-- Additional Info (optional, shows on hover) -->
 			<div class="progress-details">
 				<span class="text-sm opacity-75">
@@ -121,7 +122,8 @@
 	.progress-number {
 		font-size: 1.5rem;
 		font-weight: bold;
-		font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+		font-family:
+			'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 		transition: all 0.3s ease;
 	}
 
@@ -141,7 +143,9 @@
 	.progress-bar-fill {
 		height: 100%;
 		border-radius: 3px;
-		transition: width 0.3s ease, background-color 0.3s ease;
+		transition:
+			width 0.3s ease,
+			background-color 0.3s ease;
 		box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
 	}
 
@@ -158,17 +162,17 @@
 			justify-content: center;
 			margin: 16px 0;
 		}
-		
+
 		.progress-main {
 			flex-direction: row;
 			gap: 12px;
 			padding: 8px 12px;
 		}
-		
+
 		.progress-number {
 			font-size: 1.25rem;
 		}
-		
+
 		.progress-bar-container {
 			width: 80px;
 		}

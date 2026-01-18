@@ -1,6 +1,6 @@
 /**
  * Typing Progress Utilities
- * 
+ *
  * This module provides utilities for calculating typing progress in a typing test application.
  * It includes functions to calculate progress percentages, word completion, and accuracy metrics.
  */
@@ -24,12 +24,12 @@ export interface TypingProgressData {
 
 /**
  * Calculate comprehensive typing progress metrics
- * 
+ *
  * @param currentText - Array of words that make up the full text
  * @param userInput - Array of user input for each word
  * @param currentWordIndex - Index of the word currently being typed
  * @returns TypingProgressData object with all progress metrics
- * 
+ *
  * @example
  * ```typescript
  * const progress = calculateTypingProgress(
@@ -62,7 +62,7 @@ export function calculateTypingProgress(
 	// Calculate total characters in the entire text
 	const totalChars = currentText.reduce((total, word) => total + word.length, 0);
 	const totalWords = currentText.length;
-	
+
 	let correctChars = 0;
 	let wordsCompleted = 0;
 	let totalTypedChars = 0;
@@ -71,10 +71,10 @@ export function calculateTypingProgress(
 	for (let wordIndex = 0; wordIndex < currentText.length; wordIndex++) {
 		const word = currentText[wordIndex];
 		const input = userInput[wordIndex] || '';
-		
+
 		// Count total characters typed (for accuracy calculation)
 		totalTypedChars += input.length;
-		
+
 		// For completed words (before current word)
 		if (wordIndex < currentWordIndex) {
 			// Count characters that match exactly
@@ -85,7 +85,7 @@ export function calculateTypingProgress(
 					wordCorrectChars++;
 				}
 			}
-			
+
 			// Consider word completed if fully and correctly typed
 			if (input.length >= word.length && wordCorrectChars === word.length) {
 				wordsCompleted++;
@@ -104,13 +104,10 @@ export function calculateTypingProgress(
 	}
 
 	// Calculate metrics
-	const progressPercentage = totalChars > 0 
-		? Math.round((correctChars / totalChars) * 1000) / 10 
-		: 0;
-		
-	const accuracy = totalTypedChars > 0 
-		? Math.round((correctChars / totalTypedChars) * 100) 
-		: 100;
+	const progressPercentage =
+		totalChars > 0 ? Math.round((correctChars / totalChars) * 1000) / 10 : 0;
+
+	const accuracy = totalTypedChars > 0 ? Math.round((correctChars / totalTypedChars) * 100) : 100;
 
 	// Determine status for styling
 	let status: TypingProgressData['status'];
@@ -133,12 +130,12 @@ export function calculateTypingProgress(
 
 /**
  * Calculate simple character-based progress percentage
- * 
+ *
  * @param currentText - Array of words
  * @param userInput - Array of user input
  * @param currentWordIndex - Current word index
  * @returns Progress percentage (0-100)
- * 
+ *
  * @example
  * ```typescript
  * const percentage = calculateProgressPercentage(['hello', 'world'], ['hello', 'wor'], 1);
@@ -156,7 +153,7 @@ export function calculateProgressPercentage(
 
 /**
  * Get progress status category for styling
- * 
+ *
  * @param progressPercentage - Progress percentage (0-100)
  * @returns Status category
  */
@@ -170,18 +167,18 @@ export function getProgressStatus(progressPercentage: number): TypingProgressDat
 
 /**
  * Svelte store for reactive progress tracking
- * 
+ *
  * Usage in Svelte components:
  * ```svelte
  * <script>
  *   import { createProgressStore } from '$lib/utils/progress';
- *   
+ *
  *   const progressStore = createProgressStore();
- *   
+ *
  *   // Update when typing state changes
  *   $: progressStore.update(currentText, userInput, currentWordIndex);
  * </script>
- * 
+ *
  * <div>Progress: {$progressStore.progressPercentage}%</div>
  * ```
  */
@@ -200,11 +197,11 @@ export function createProgressStore() {
 		get progress() {
 			return currentProgress;
 		},
-		
+
 		update(currentText: string[], userInput: string[], currentWordIndex: number) {
 			currentProgress = calculateTypingProgress(currentText, userInput, currentWordIndex);
 		},
-		
+
 		reset() {
 			currentProgress = {
 				progressPercentage: 0,

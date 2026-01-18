@@ -33,7 +33,7 @@
 			const currentLength = demoInput[demoWordIndex].length;
 			demoInput[demoWordIndex] = targetWord.substring(0, currentLength + 1);
 		}
-		
+
 		// Trigger reactivity
 		demoInput = [...demoInput];
 	};
@@ -46,19 +46,19 @@
 
 <!-- Demo Progress Display -->
 <div class="demo-container">
-	<h3 class="{gameTheme.textColor} text-xl font-bold mb-4">Progress Indicator Demo</h3>
-	
+	<h3 class="{gameTheme.textColor} mb-4 text-xl font-bold">Progress Indicator Demo</h3>
+
 	<!-- Progress Display -->
 	<div class="progress-demo {gameTheme.opacityAccentBackgroundColor} {gameTheme.textColor}">
 		<div class="progress-main">
 			<!-- Percentage -->
-			<div class="text-3xl font-mono font-bold mb-2">
+			<div class="mb-2 font-mono text-3xl font-bold">
 				{progress.progressPercentage}%
 			</div>
-			
+
 			<!-- Progress Bar -->
 			<div class="progress-bar-bg {gameTheme.accentBackgroundColor}">
-				<div 
+				<div
 					class="progress-bar-fill"
 					class:bg-green-500={progress.status === 'complete'}
 					class:bg-blue-500={progress.status === 'high'}
@@ -68,9 +68,9 @@
 					style="width: {progress.progressPercentage}%"
 				></div>
 			</div>
-			
+
 			<!-- Stats -->
-			<div class="text-sm opacity-75 mt-2">
+			<div class="mt-2 text-sm opacity-75">
 				<div>Words: {progress.wordsCompleted} / {progress.totalWords}</div>
 				<div>Characters: {progress.correctChars} / {progress.totalChars}</div>
 				<div>Status: {progress.status}</div>
@@ -81,15 +81,17 @@
 	<!-- Demo Text Display -->
 	<div class="demo-text mt-4">
 		{#each demoText as word, index}
-			<span 
+			<span
 				class="demo-word {gameTheme.textColor}"
 				class:current={index === demoWordIndex}
 				class:completed={index < demoWordIndex}
 			>
 				{#each word.split('') as char, charIndex}
-					<span 
+					<span
 						class:correct={demoInput[index] && demoInput[index][charIndex] === char}
-						class:incorrect={demoInput[index] && demoInput[index][charIndex] && demoInput[index][charIndex] !== char}
+						class:incorrect={demoInput[index] &&
+							demoInput[index][charIndex] &&
+							demoInput[index][charIndex] !== char}
 						class:pending={!demoInput[index] || !demoInput[index][charIndex]}
 					>
 						{char}
@@ -101,18 +103,13 @@
 
 	<!-- Demo Controls -->
 	<div class="demo-controls mt-4 flex gap-2">
-		<button 
+		<button
 			onclick={simulateTyping}
-			class="px-3 py-1 rounded {gameTheme.accentBgColor} {gameTheme.textColor}"
+			class="rounded px-3 py-1 {gameTheme.accentBgColor} {gameTheme.textColor}"
 		>
 			Type Next
 		</button>
-		<button 
-			onclick={resetDemo}
-			class="px-3 py-1 rounded bg-gray-500 text-white"
-		>
-			Reset
-		</button>
+		<button onclick={resetDemo} class="rounded bg-gray-500 px-3 py-1 text-white"> Reset </button>
 	</div>
 </div>
 
@@ -143,12 +140,15 @@
 
 	.progress-bar-fill {
 		height: 100%;
-		transition: width 0.3s ease, background-color 0.3s ease;
+		transition:
+			width 0.3s ease,
+			background-color 0.3s ease;
 		border-radius: 4px;
 	}
 
 	.demo-text {
-		font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+		font-family:
+			'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 		font-size: 1.5rem;
 		line-height: 1.8;
 		margin: 20px 0;

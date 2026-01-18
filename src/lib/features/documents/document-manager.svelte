@@ -19,50 +19,44 @@
 	import DocumentViewer from './document-viewer.svelte';
 
 	// Component state
-	let documents: DocumentWithPerformance[] = $state([]);
+	const { documentsWithPerformance } = documentStore;
+	let documents = $derived($documentsWithPerformance);
 	let filteredDocuments: DocumentWithPerformance[] = $state([]);
 	let selectedDocument: DocumentWithPerformance | null = $state(null);
 	let currentView: 'list' | 'add' | 'view' | 'practice' = $state('list');
 	let searchQuery = $state('');
 	let selectedTags: string[] = $state([]);
 	let availableTags: string[] = $state([]);
-	let loading = $state(true);
+	let storageError: string | null = $state(null);
+
+	// Subscribe to storage error
+	documentStore.storageError.subscribe((error) => {
+		storageError = error;
+	});
 
 	// Props for integration with typing practice
 	interface Props {
 		onStartPractice?: (document: DocumentWithPerformance) => void;
 		onStartFormattedPractice?: (document: DocumentWithPerformance) => void;
-		onSavePerformance?: (documentId: string, performance: {
-			wpm: number;
-			accuracy: number;
-			correctChars: number;
-			totalChars: number;
-			timeElapsed: number;
-		}) => void;
+		onSavePerformance?: (
+			documentId: string,
+			performance: {
+				wpm: number;
+				accuracy: number;
+				correctChars: number;
+				totalChars: number;
+				timeElapsed: number;
+			}
+		) => void;
 	}
 
 	let { onStartPractice, onStartFormattedPractice, onSavePerformance }: Props = $props();
 
 	/**
-	 * Load documents and update available tags
-	 */
-	const loadDocuments = async () => {
-		try {
-			loading = true;
-			documents = await documentStore.getDocumentsWithPerformance();
-			await updateFilteredDocuments();
-			updateAvailableTags();
-		} catch (error) {
-			console.error('Error loading documents:', error);
-		} finally {
-			loading = false;
-		}
-	};
-
-	/**
 	 * Update filtered documents based on search query and selected tags
 	 */
 	const updateFilteredDocuments = async () => {
+		// Use the reactive documents directly
 		let filtered = documents;
 
 		// Apply search query filter
@@ -72,37 +66,37 @@
 
 		// Apply tag filter
 		if (selectedTags.length > 0) {
-			filtered = filtered.filter(doc =>
-				selectedTags.some(tag =>
-					doc.tags.some(docTag =>
-						docTag.toLowerCase().includes(tag.toLowerCase())
-					)
+			filtered = filtered.filter((doc) =>
+				selectedTags.some((tag) =>
+					doc.tags.some((docTag) => docTag.toLowerCase().includes(tag.toLowerCase()))
 				)
 			);
 		}
 
 		filteredDocuments = filtered;
+		updateAvailableTags();
 	};
 
 	/**
 	 * Extract all unique tags from documents
 	 */
 	const updateAvailableTags = () => {
-		const allTags = documents.flatMap(doc => doc.tags);
+		const allTags = documents.flatMap((doc) => doc.tags);
 		availableTags = [...new Set(allTags)].sort();
 	};
 
 	/**
 	 * Handle adding a new document
 	 */
-	const handleAddDocument = (event: CustomEvent<{
-		title: string;
-		content: string;
-		tags: string[];
-	}>) => {
+	const handleAddDocument = (
+		event: CustomEvent<{
+			title: string;
+			content: string;
+			tags: string[];
+		}>
+	) => {
 		const { title, content, tags } = event.detail;
 		documentStore.addDocument(title, content, tags);
-		loadDocuments();
 		currentView = 'list';
 	};
 
@@ -141,6 +135,27 @@
 	};
 
 	/**
+	 * Toggle tag filter
+	 */
+	const toggleTagFilter = (tag: string) => {
+		if (selectedTags.includes(tag)) {
+			selectedTags = selectedTags.filter((t) => t !== tag);
+		} else {
+			selectedTags = [...selectedTags, tag];
+		}
+		updateFilteredDocuments();
+	};
+
+	/**
+	 * Clear all filters
+	 */
+	const clearFilters = () => {
+		searchQuery = '';
+		selectedTags = [];
+		updateFilteredDocuments();
+	};
+
+	/**
 	 * Handle saving performance data after a practice session
 	 */
 	const handleSavePerformance = (performance: {
@@ -164,7 +179,6 @@
 					performance.timeElapsed
 				);
 			}
-			loadDocuments(); // Refresh to show updated stats
 		}
 	};
 
@@ -174,7 +188,6 @@
 	const handleDeleteDocument = (documentId: string) => {
 		if (confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
 			documentStore.deleteDocument(documentId);
-			loadDocuments();
 			if (selectedDocument?.id === documentId) {
 				selectedDocument = null;
 				currentView = 'list';
@@ -182,35 +195,13 @@
 		}
 	};
 
-	/**
-	 * Toggle tag filter
-	 */
-	const toggleTagFilter = (tag: string) => {
-		if (selectedTags.includes(tag)) {
-			selectedTags = selectedTags.filter(t => t !== tag);
-		} else {
-			selectedTags = [...selectedTags, tag];
-		}
-		updateFilteredDocuments();
-	};
+	// ... (Tag filter handlers remain same)
 
-	/**
-	 * Clear all filters
-	 */
-	const clearFilters = () => {
-		searchQuery = '';
-		selectedTags = [];
-		updateFilteredDocuments();
-	};
-
-	// Reactive statements to handle search and filter updates
+	// Reactive statements to handle updates
 	$effect(() => {
+		// When documents change, re-filter
+		documents; // Dependency
 		updateFilteredDocuments();
-	});
-
-	// Load documents on component mount
-	onMount(() => {
-		loadDocuments();
 	});
 </script>
 
@@ -221,17 +212,17 @@
 			<h1>Document Manager</h1>
 			<p class="subtitle">Manage your custom typing practice documents</p>
 		</div>
-		
+
 		<div class="action-buttons">
-			<button 
+			<button
 				class="btn {currentView === 'list' ? 'btn-active' : 'btn-secondary'}"
-				onclick={() => currentView = 'list'}
+				onclick={() => (currentView = 'list')}
 			>
 				📚 My Documents
 			</button>
-			<button 
+			<button
 				class="btn {currentView === 'add' ? 'btn-active' : 'btn-primary'}"
-				onclick={() => currentView = 'add'}
+				onclick={() => (currentView = 'add')}
 			>
 				➕ Add Document
 			</button>
@@ -239,67 +230,81 @@
 	</div>
 
 	<!-- Main content area -->
+	<!-- Main content area -->
 	<div class="content">
-		{#if loading}
-			<div class="loading">
-				<div class="spinner"></div>
-				<p>Loading documents...</p>
-			</div>
-		{:else if currentView === 'list'}
+		{#if currentView === 'list'}
 			<!-- Document List View -->
 			<div class="list-view">
-				<!-- Search and Filter Controls -->
-				<div class="controls">
-					<div class="search-section">
-						<input
-							type="text"
-							placeholder="Search documents by title, content, or tags..."
-							bind:value={searchQuery}
-							class="search-input"
-						/>
+				{#if storageError}
+					<div
+						class="mb-4 rounded-lg bg-red-100 p-4 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+					>
+						<p class="font-bold">⚠️ Storage Warning</p>
+						<p>{storageError}</p>
+					</div>
+				{/if}
+
+				{#if documents.length === 0}
+					<div class="empty-state">
+						<div class="empty-icon">📝</div>
+						<h2>No documents yet</h2>
+						<p>Import your own texts or code snippets to practice typing what matters to you.</p>
+						<button class="btn-primary mt-4" onclick={() => (currentView = 'add')}>
+							Hit the ground running
+						</button>
+					</div>
+				{:else}
+					<!-- Search and Filter Controls -->
+					<div class="controls">
+						<div class="search-section">
+							<input
+								type="text"
+								placeholder="Search documents by title, content, or tags..."
+								bind:value={searchQuery}
+								class="search-input"
+							/>
+						</div>
+
+						{#if availableTags.length > 0}
+							<div class="tag-filters">
+								<h3>Filter by tags:</h3>
+								<div class="tag-list">
+									{#each availableTags as tag}
+										<button
+											class="tag-filter {selectedTags.includes(tag) ? 'tag-active' : ''}"
+											onclick={() => toggleTagFilter(tag)}
+										>
+											{tag}
+										</button>
+									{/each}
+								</div>
+								{#if selectedTags.length > 0}
+									<button class="clear-filters" onclick={clearFilters}> Clear filters </button>
+								{/if}
+							</div>
+						{/if}
 					</div>
 
-					{#if availableTags.length > 0}
-						<div class="tag-filters">
-							<h3>Filter by tags:</h3>
-							<div class="tag-list">
-								{#each availableTags as tag}
-									<button
-										class="tag-filter {selectedTags.includes(tag) ? 'tag-active' : ''}"
-										onclick={() => toggleTagFilter(tag)}
-									>
-										{tag}
-									</button>
-								{/each}
-							</div>
-							{#if selectedTags.length > 0}
-								<button class="clear-filters" onclick={clearFilters}>
-									Clear filters
-								</button>
-							{/if}
-						</div>
-					{/if}
-				</div>
-
-				<!-- Document List -->
-				<DocumentList
-					documents={filteredDocuments}
-					onSelect={handleSelectDocument}
-					onStartPractice={handleStartPractice}
-					onStartFormattedPractice={handleStartFormattedPractice}
-					onDelete={handleDeleteDocument}
-				/>
+					<!-- Document List -->
+					<DocumentList
+						documents={filteredDocuments}
+						onSelect={handleSelectDocument}
+						onStartPractice={handleStartPractice}
+						onStartFormattedPractice={handleStartFormattedPractice}
+						onDelete={handleDeleteDocument}
+					/>
+				{/if}
 			</div>
 		{:else if currentView === 'add'}
 			<!-- Add Document Form -->
-			<DocumentForm onSubmit={handleAddDocument} onCancel={() => currentView = 'list'} />
+			<DocumentForm onSubmit={handleAddDocument} onCancel={() => (currentView = 'list')} />
 		{:else if currentView === 'view' && selectedDocument}
 			<!-- Document Viewer -->
 			<DocumentViewer
 				document={selectedDocument}
 				onStartPractice={() => handleStartPractice(selectedDocument!)}
-				onEdit={() => currentView = 'add'}
-				onBack={() => currentView = 'list'}
+				onEdit={() => (currentView = 'add')}
+				onBack={() => (currentView = 'list')}
 				onDelete={() => handleDeleteDocument(selectedDocument!.id)}
 			/>
 		{:else if currentView === 'practice' && selectedDocument}
@@ -307,20 +312,20 @@
 			<div class="practice-mode">
 				<div class="practice-header">
 					<h2>Practicing: {selectedDocument.title}</h2>
-					<button class="btn-secondary" onclick={() => currentView = 'view'}>
+					<button class="btn-secondary" onclick={() => (currentView = 'view')}>
 						← Back to Document
 					</button>
 				</div>
-				
+
 				<div class="practice-content">
 					<!-- This is where you would integrate with your typing practice component -->
 					<div class="placeholder">
 						<p>🚧 Typing practice integration point</p>
 						<p>This is where the typing practice component would be rendered.</p>
 						<p>Document content: <strong>{selectedDocument.title}</strong></p>
-						
+
 						<!-- Example of how to handle practice completion -->
-						<button 
+						<button
 							class="btn-primary"
 							onclick={() => {
 								// Example performance data
@@ -343,7 +348,7 @@
 			<!-- Error state -->
 			<div class="error-state">
 				<p>Something went wrong. Please try again.</p>
-				<button class="btn-primary" onclick={() => currentView = 'list'}>
+				<button class="btn-primary" onclick={() => (currentView = 'list')}>
 					← Back to Documents
 				</button>
 			</div>
@@ -356,7 +361,10 @@
 		max-width: 1200px;
 		margin: 0 auto;
 		padding: 2rem;
-		font-family: system-ui, -apple-system, sans-serif;
+		font-family:
+			system-ui,
+			-apple-system,
+			sans-serif;
 	}
 
 	.header {
@@ -424,29 +432,6 @@
 
 	.content {
 		min-height: 400px;
-	}
-
-	.loading {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 4rem;
-		color: #718096;
-	}
-
-	.spinner {
-		width: 2rem;
-		height: 2rem;
-		border: 3px solid #e2e8f0;
-		border-top: 3px solid #3182ce;
-		border-radius: 50%;
-		animation: spin 1s linear infinite;
-		margin-bottom: 1rem;
-	}
-
-	@keyframes spin {
-		to { transform: rotate(360deg); }
 	}
 
 	.controls {
@@ -585,5 +570,61 @@
 		.tag-list {
 			gap: 0.25rem;
 		}
+	}
+
+	.empty-state {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 4rem 2rem;
+		text-align: center;
+		background: #f7fafc;
+		border-radius: 0.5rem;
+		border: 2px dashed #e2e8f0;
+	}
+
+	.empty-icon {
+		font-size: 3rem;
+		margin-bottom: 1rem;
+	}
+
+	.empty-state h2 {
+		margin: 0 0 0.5rem 0;
+		color: #2d3748;
+	}
+
+	.empty-state p {
+		color: #718096;
+		margin-bottom: 1.5rem;
+		max-width: 400px;
+	}
+
+	.mt-4 {
+		margin-top: 1rem;
+	}
+
+	.mb-4 {
+		margin-bottom: 1rem;
+	}
+
+	.p-4 {
+		padding: 1rem;
+	}
+
+	.rounded-lg {
+		border-radius: 0.5rem;
+	}
+
+	.bg-red-100 {
+		background-color: #fee2e2;
+	}
+
+	.text-red-700 {
+		color: #b91c1c;
+	}
+
+	.font-bold {
+		font-weight: 700;
 	}
 </style>

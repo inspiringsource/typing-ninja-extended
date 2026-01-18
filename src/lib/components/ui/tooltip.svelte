@@ -39,7 +39,7 @@
 		right: `left-[-8px] top-1/2 -translate-y-1/2 rotate-180 border-r-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-l-[8px]`
 	};
 
-	let timeoutId: number;
+	let timeoutId: any;
 
 	function showTooltip() {
 		timeoutId = setTimeout(() => {

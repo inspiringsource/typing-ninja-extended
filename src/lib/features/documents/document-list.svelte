@@ -20,7 +20,8 @@
 		onDelete: (documentId: string) => void;
 	}
 
-	let { documents, onSelect, onStartPractice, onStartFormattedPractice, onDelete }: Props = $props();
+	let { documents, onSelect, onStartPractice, onStartFormattedPractice, onDelete }: Props =
+		$props();
 
 	/**
 	 * Format date for display
@@ -48,6 +49,26 @@
 		const words = content.split(' ').slice(0, maxWords);
 		return words.join(' ') + (content.split(' ').length > maxWords ? '...' : '');
 	};
+	// Sorting state
+	type SortOption = 'updated' | 'wpm' | 'practiced' | 'alphabetical';
+	let sortBy: SortOption = $state('updated');
+
+	// Derived sorted documents
+	let sortedDocuments = $derived.by(() => {
+		const docs = [...documents];
+		switch (sortBy) {
+			case 'updated':
+				return docs.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+			case 'wpm':
+				return docs.sort((a, b) => (b.bestWpm || 0) - (a.bestWpm || 0));
+			case 'practiced':
+				return docs.sort((a, b) => b.performances.length - a.performances.length);
+			case 'alphabetical':
+				return docs.sort((a, b) => a.title.localeCompare(b.title));
+			default:
+				return docs;
+		}
+	});
 </script>
 
 <div class="document-list">
@@ -59,9 +80,23 @@
 			<p>Create your first document to start practicing with custom text.</p>
 		</div>
 	{:else}
+		<!-- Sorting Controls -->
+		<div class="mb-6 flex items-center justify-end gap-2 text-sm text-gray-600 dark:text-gray-400">
+			<span class="font-medium">Sort by:</span>
+			<select
+				bind:value={sortBy}
+				class="rounded-md border-gray-300 bg-white py-1 pl-2 pr-8 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800"
+			>
+				<option value="updated">Recently Updated</option>
+				<option value="wpm">Best WPM</option>
+				<option value="practiced">Most Practiced</option>
+				<option value="alphabetical">A-Z</option>
+			</select>
+		</div>
+
 		<!-- Document grid -->
 		<div class="document-grid">
-			{#each documents as document (document.id)}
+			{#each sortedDocuments as document (document.id)}
 				<div class="document-card">
 					<!-- Card Header -->
 					<div class="card-header">
@@ -71,16 +106,18 @@
 								class="action-btn action-view"
 								onclick={() => onSelect(document)}
 								title="View document details"
+								aria-label="View document details"
 							>
 								👁️
 							</button>
-							
+
 							<!-- Practice Options -->
 							<div class="practice-dropdown">
 								<button
 									class="action-btn action-practice"
 									onclick={() => onStartPractice(document)}
 									title="Start regular typing practice"
+									aria-label="Start regular typing practice"
 								>
 									⌨️
 								</button>
@@ -88,17 +125,19 @@
 									<button
 										class="action-btn action-formatted-practice"
 										onclick={() => onStartFormattedPractice?.(document)}
-										title="Start formatted typing practice (preserves spacing, tabs, line breaks)"
+										title="Start formatted typing practice"
+										aria-label="Start formatted typing practice"
 									>
 										💻
 									</button>
 								{/if}
 							</div>
-							
+
 							<button
 								class="action-btn action-delete"
 								onclick={() => onDelete(document.id)}
 								title="Delete document"
+								aria-label="Delete document"
 							>
 								🗑️
 							</button>
@@ -124,7 +163,11 @@
 						<div class="performance-stats">
 							<div class="stats-header">
 								<span class="stats-title">📊 Performance</span>
-								<span class="session-count">{document.performances.length} session{document.performances.length === 1 ? '' : 's'}</span>
+								<span class="session-count"
+									>{document.performances.length} session{document.performances.length === 1
+										? ''
+										: 's'}</span
+								>
 							</div>
 							<div class="stats-grid">
 								<div class="stat">

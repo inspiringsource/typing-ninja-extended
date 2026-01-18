@@ -15,11 +15,13 @@
 
 	interface Props {
 		onCancel: () => void;
-		onSubmit: (event: CustomEvent<{
-			title: string;
-			content: string;
-			tags: string[];
-		}>) => void;
+		onSubmit: (
+			event: CustomEvent<{
+				title: string;
+				content: string;
+				tags: string[];
+			}>
+		) => void;
 	}
 
 	let { onCancel, onSubmit }: Props = $props();
@@ -42,6 +44,7 @@
 
 	// File input reference
 	let fileInput: HTMLInputElement;
+	let isDragging = $state(false);
 
 	/**
 	 * Validate form fields
@@ -74,7 +77,7 @@
 	 */
 	const handleSubmit = async (event: Event) => {
 		event.preventDefault();
-		
+
 		if (!validateForm()) {
 			return;
 		}
@@ -86,11 +89,11 @@
 				detail: {
 					title: title.trim(),
 					content: content.trim(),
-					tags: tags.map(tag => tag.trim()).filter(tag => tag.length > 0)
+					tags: tags.map((tag) => tag.trim()).filter((tag) => tag.length > 0)
 				}
 			});
 			onSubmit(submitEvent);
-			
+
 			// Clear form after successful submission
 			title = '';
 			content = '';
@@ -109,7 +112,7 @@
 	 */
 	const addTag = () => {
 		const tagToAdd = newTag.trim().toLowerCase();
-		
+
 		if (tagToAdd && !tags.includes(tagToAdd) && tags.length < 10) {
 			tags = [...tags, tagToAdd];
 			newTag = '';
@@ -120,7 +123,7 @@
 	 * Remove a tag
 	 */
 	const removeTag = (tagToRemove: string) => {
-		tags = tags.filter(tag => tag !== tagToRemove);
+		tags = tags.filter((tag) => tag !== tagToRemove);
 	};
 
 	/**
@@ -134,12 +137,9 @@
 	};
 
 	/**
-	 * Handle file import
+	 * Handle file processing (shared between input and drop)
 	 */
-	const handleFileImport = (event: Event) => {
-		const input = event.target as HTMLInputElement;
-		const file = input.files?.[0];
-		
+	const processFile = (file: File) => {
 		if (file) {
 			const reader = new FileReader();
 			reader.onload = (e) => {
@@ -155,9 +155,41 @@
 			};
 			reader.readAsText(file);
 		}
-		
-		// Reset input so the same file can be selected again
+	};
+
+	/**
+	 * Handle file import from input
+	 */
+	const handleFileImport = (event: Event) => {
+		const input = event.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (file) processFile(file);
 		input.value = '';
+	};
+
+	/**
+	 * Handle drag events
+	 */
+	const handleDragOver = (e: DragEvent) => {
+		e.preventDefault();
+		isDragging = true;
+	};
+
+	const handleDragLeave = (e: DragEvent) => {
+		e.preventDefault();
+		isDragging = false;
+	};
+
+	const handleDrop = (e: DragEvent) => {
+		e.preventDefault();
+		isDragging = false;
+		const file = e.dataTransfer?.files[0];
+		if (
+			file &&
+			(file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.rtf'))
+		) {
+			processFile(file);
+		}
 	};
 
 	/**
@@ -242,9 +274,7 @@
 	<form onsubmit={handleSubmit} class="form">
 		<!-- Title Input -->
 		<div class="form-group">
-			<label for="title" class="form-label">
-				Document Title *
-			</label>
+			<label for="title" class="form-label"> Document Title * </label>
 			<input
 				id="title"
 				type="text"
@@ -261,15 +291,9 @@
 		<!-- Content Input -->
 		<div class="form-group">
 			<div class="content-header">
-				<label for="content" class="form-label">
-					Document Content *
-				</label>
+				<label for="content" class="form-label"> Document Content * </label>
 				<div class="content-actions">
-					<button
-						type="button"
-						onclick={() => fileInput.click()}
-						class="import-btn"
-					>
+					<button type="button" onclick={() => fileInput.click()} class="import-btn">
 						📁 Import from File
 					</button>
 					<input
@@ -281,21 +305,39 @@
 					/>
 				</div>
 			</div>
-			
-			<textarea
-				id="content"
-				bind:value={content}
-				placeholder="Paste or type the text you want to practice typing. The content should be at least 50 characters for meaningful practice."
-				class="form-textarea {errors.content ? 'input-error' : ''}"
-				rows="12"
-				maxlength="10000"
-			></textarea>
-			
+
+			<div
+				class="drop-zone {isDragging ? 'dragging' : ''}"
+				ondragover={handleDragOver}
+				ondragleave={handleDragLeave}
+				ondrop={handleDrop}
+				role="region"
+				aria-label="Content drop zone"
+			>
+				<textarea
+					id="content"
+					bind:value={content}
+					placeholder="Paste text here, or drag and drop a .txt/.md file"
+					class="form-textarea {errors.content ? 'input-error' : ''}"
+					rows="12"
+					maxlength="10000"
+				></textarea>
+
+				{#if isDragging}
+					<div class="drag-overlay">
+						<div class="drag-message">
+							<span class="text-4xl">📄</span>
+							<span class="text-xl font-bold">Drop text file here</span>
+						</div>
+					</div>
+				{/if}
+			</div>
+
 			<div class="content-stats">
 				<span class="stat">Words: {contentStats.wordCount}</span>
 				<span class="stat">Characters: {contentStats.charCount}</span>
 			</div>
-			
+
 			{#if errors.content}
 				<div class="error-message">{errors.content}</div>
 			{/if}
@@ -303,9 +345,7 @@
 
 		<!-- Tags Input -->
 		<div class="form-group">
-			<label for="tags" class="form-label">
-				Tags (Optional)
-			</label>
+			<label for="tags" class="form-label"> Tags (Optional) </label>
 			<div class="tags-input">
 				<input
 					id="tags"
@@ -319,30 +359,26 @@
 				<button
 					type="button"
 					onclick={addTag}
-					disabled={!newTag.trim() || tags.includes(newTag.trim().toLowerCase()) || tags.length >= 10}
+					disabled={!newTag.trim() ||
+						tags.includes(newTag.trim().toLowerCase()) ||
+						tags.length >= 10}
 					class="add-tag-btn"
 				>
 					Add Tag
 				</button>
 			</div>
-			
+
 			{#if tags.length > 0}
 				<div class="tags-display">
 					{#each tags as tag}
 						<span class="tag">
 							{tag}
-							<button
-								type="button"
-								onclick={() => removeTag(tag)}
-								class="remove-tag"
-							>
-								×
-							</button>
+							<button type="button" onclick={() => removeTag(tag)} class="remove-tag"> × </button>
 						</span>
 					{/each}
 				</div>
 			{/if}
-			
+
 			{#if tags.length >= 10}
 				<div class="info-message">Maximum 10 tags allowed</div>
 			{/if}
@@ -430,7 +466,9 @@
 		border: 1px solid #e2e8f0;
 		border-radius: 0.375rem;
 		font-size: 1rem;
-		transition: border-color 0.2s, box-shadow 0.2s;
+		transition:
+			border-color 0.2s,
+			box-shadow 0.2s;
 	}
 
 	.form-input:focus {
@@ -448,7 +486,9 @@
 		line-height: 1.5;
 		resize: vertical;
 		min-height: 200px;
-		transition: border-color 0.2s, box-shadow 0.2s;
+		transition:
+			border-color 0.2s,
+			box-shadow 0.2s;
 	}
 
 	.form-textarea:focus {
@@ -638,7 +678,9 @@
 	}
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	@media (max-width: 768px) {
@@ -665,5 +707,38 @@
 			flex-direction: column;
 			gap: 0.25rem;
 		}
+	}
+	.drop-zone {
+		position: relative;
+		border-radius: 0.375rem;
+		transition: all 0.2s;
+	}
+
+	.drop-zone.dragging {
+		box-shadow: 0 0 0 4px rgba(49, 130, 206, 0.3);
+	}
+
+	.drag-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(255, 255, 255, 0.95);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 2px dashed #3182ce;
+		border-radius: 0.375rem;
+		z-index: 10;
+		pointer-events: none;
+	}
+
+	.drag-message {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1rem;
+		color: #3182ce;
 	}
 </style>

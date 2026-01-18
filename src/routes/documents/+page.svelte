@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import DocumentManager from '$lib/features/documents/document-manager.svelte';
 	import { customPracticeStore } from '$lib/stores/custom-practice-store';
-	import { customPracticeStore as formattedCustomPracticeStore } from '$lib/stores/custom-practice-store-formatted';
+
 	import { documentStore } from '$lib/stores/document-store';
 	import type { DocumentWithPerformance } from '../../type';
 
@@ -12,10 +12,10 @@
 	 */
 	const handleStartPractice = (document: DocumentWithPerformance) => {
 		console.log('Starting regular practice with document:', document.title);
-		
+
 		// Set up custom practice in the store
 		customPracticeStore.startCustomPractice(document);
-		
+
 		// Navigate to the main typing practice page
 		goto('/');
 	};
@@ -26,10 +26,10 @@
 	 */
 	const handleStartFormattedPractice = (document: DocumentWithPerformance) => {
 		console.log('Starting formatted practice with document:', document.title);
-		
+
 		// Set up formatted custom practice in the store
-		formattedCustomPracticeStore.startCustomPractice(document, true);
-		
+		customPracticeStore.startCustomPracticeFormatted(document);
+
 		// Navigate to the formatted typing practice page
 		goto('/formatted');
 	};
@@ -39,7 +39,7 @@
 	 * This is called from the main typing practice component
 	 */
 	const handleSavePerformance = (
-		documentId: string, 
+		documentId: string,
 		performance: {
 			wpm: number;
 			accuracy: number;
@@ -49,7 +49,7 @@
 		}
 	) => {
 		console.log('Saving performance for document:', documentId, performance);
-		
+
 		// Save performance to the document store
 		documentStore.addPerformance(
 			documentId,
@@ -59,9 +59,11 @@
 			performance.totalChars,
 			performance.timeElapsed
 		);
-		
+
 		// Show success message
-		alert(`Performance saved!\nWPM: ${performance.wpm}\nAccuracy: ${performance.accuracy.toFixed(1)}%`);
+		alert(
+			`Performance saved!\nWPM: ${performance.wpm}\nAccuracy: ${performance.accuracy.toFixed(1)}%`
+		);
 	};
 </script>
 

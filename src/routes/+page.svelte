@@ -35,21 +35,23 @@
 	let gameTheme = $state(themes[0]);
 
 	let recentKeys: string[] = $state([]);
-	let timerInterval = $state(0);
-	
+	let timerInterval: any = $state(0);
+
 	// Custom practice state
 	let customPracticeState = $state({
 		isCustomPractice: false,
-		document: null as any,
-		customText: [] as string[]
+		document: null as import('../type').DocumentWithPerformance | null,
+		customText: [] as string[] | string,
+		isFormattedText: false
 	});
 
 	// Subscribe to custom practice store
-	customPracticeStore.subscribe(state => {
+	customPracticeStore.subscribe((state) => {
 		customPracticeState = state;
 	});
 
 	const startTimer = () => {
+		stopTimer();
 		timerInterval = setInterval(() => {
 			if (gameStates.mode === 'time') {
 				gameStates.timeElapsed--;
@@ -84,8 +86,12 @@
 		gameStates.accuracy = 100;
 		gameStates.wpm = 0;
 
-		// Check if we have custom practice text
-		if (customPracticeState.isCustomPractice && customPracticeState.customText.length > 0) {
+		// Check if we have custom practice text (and it's in the correct format for this mode)
+		if (
+			customPracticeState.isCustomPractice &&
+			Array.isArray(customPracticeState.customText) &&
+			customPracticeState.customText.length > 0
+		) {
 			gameStates.currentText = customPracticeState.customText;
 			gameStates.timeElapsed = 0;
 			// Force to words mode for custom practice
@@ -103,6 +109,9 @@
 	// Initialize game on mount
 	onMount(() => {
 		initGame();
+		return () => {
+			stopTimer();
+		};
 	});
 
 	const startGame = () => {
@@ -205,9 +214,6 @@
 			stopGame();
 		}
 	});
-
-	// Init the game state
-	initGame();
 </script>
 
 <svelte:head>
@@ -248,7 +254,9 @@
 					{#if customPracticeState.isCustomPractice}
 						<!-- Custom Practice Header -->
 						<div class="mb-6 text-center">
-							<div class="inline-flex items-center gap-2 rounded-lg bg-blue-100 px-4 py-2 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+							<div
+								class="inline-flex items-center gap-2 rounded-lg bg-blue-100 px-4 py-2 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+							>
 								<span class="text-lg">📄</span>
 								<span class="font-medium">Custom Practice:</span>
 								<span class="font-bold">{customPracticeState.document?.title}</span>
@@ -263,8 +271,8 @@
 								>
 									← Exit Custom Practice
 								</button>
-								<a 
-									href="/documents" 
+								<a
+									href="/documents"
 									class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
 								>
 									📚 Back to Documents
@@ -273,20 +281,20 @@
 						</div>
 					{:else}
 						<Filter bind:gameStates bind:gameTheme />
-						
+
 						<!-- Mode Selection -->
 						<div class="mb-4 text-center">
 							<div class="inline-flex items-center gap-2 text-sm">
 								<span class="text-gray-500 dark:text-gray-400">Try different modes:</span>
-								<a 
-									href="/formatted" 
+								<a
+									href="/formatted"
 									class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
 								>
 									💻 Formatted Text Mode
 								</a>
 								<span class="text-gray-400">•</span>
-								<a 
-									href="/documents" 
+								<a
+									href="/documents"
 									class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
 								>
 									📚 Documents
@@ -303,7 +311,7 @@
 					userInput={gameStates.userInput}
 					currentWordIndex={gameStates.currentWordIndex}
 				/>
-				
+
 				<!-- Progress Indicator - shows typing progress as percentage -->
 				<ProgressIndicator
 					currentText={gameStates.currentText}
@@ -347,84 +355,86 @@
 			{#if gameStates.isPlaying && gameStates.isShowKeyboard}
 				<KeyboardDisplay {gameTheme} {recentKeys} />
 			{/if}
-		{:else}
-			{#if customPracticeState.isCustomPractice}
-				<!-- Custom Practice Results -->
-				<div class="mx-auto mt-36 w-full max-w-xl">
-					<!-- Success Message -->
-					<div class="mb-6 text-center">
-						<div class="inline-flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-green-800 dark:bg-green-900 dark:text-green-200">
-							<span class="text-lg">🎉</span>
-							<span class="font-medium">Document Practice Completed!</span>
-						</div>
-						<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-							Performance saved for: <strong>{customPracticeState.document?.title}</strong>
-						</p>
+		{:else if customPracticeState.isCustomPractice}
+			<!-- Custom Practice Results -->
+			<div class="mx-auto mt-36 w-full max-w-xl">
+				<!-- Success Message -->
+				<div class="mb-6 text-center">
+					<div
+						class="inline-flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-green-800 dark:bg-green-900 dark:text-green-200"
+					>
+						<span class="text-lg">🎉</span>
+						<span class="font-medium">Document Practice Completed!</span>
 					</div>
-					
-					<!-- Results Grid -->
-					<div class="grid grid-cols-2 gap-7">
-						<div
-							class="flex flex-col items-center justify-center gap-y-2 rounded-2xl {gameTheme.opacityAccentBackgroundColor} p-5 transition-all hover:shadow-lg"
-						>
-							<h3 class="text-2xl">WPM</h3>
-							<span class="text-6xl text-yellow-500">{gameStates.wpm}</span>
-						</div>
-						<div
-							class="flex flex-col items-center justify-center gap-y-2 rounded-2xl bg-neutral-900/60 p-5 transition-all hover:shadow-lg {gameTheme.opacityAccentBackgroundColor}"
-						>
-							<h3 class="text-2xl">Accuracy</h3>
-							<span class="text-6xl text-yellow-500">{gameStates.accuracy}%</span>
-						</div>
-						<div
-							class="flex flex-col items-center justify-center gap-y-2 rounded-2xl bg-neutral-900/60 p-5 transition-all hover:shadow-lg {gameTheme.opacityAccentBackgroundColor}"
-						>
-							<h3 class="text-2xl">Characters</h3>
-							<div>
-								<p>Correct: {gameStates.correctChars}/{gameStates.totalChars}</p>
-								<p>Incorrect: {gameStates.totalChars - gameStates.correctChars}/{gameStates.totalChars}</p>
-							</div>
-						</div>
-						<div
-							class="flex flex-col items-center justify-center gap-y-2 rounded-2xl bg-neutral-900/60 p-5 transition-all hover:shadow-lg {gameTheme.opacityAccentBackgroundColor}"
-						>
-							<h3 class="text-2xl">Time</h3>
-							<span class="text-3xl text-yellow-500">{gameStates.timeElapsed}s</span>
+					<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+						Performance saved for: <strong>{customPracticeState.document?.title}</strong>
+					</p>
+				</div>
+
+				<!-- Results Grid -->
+				<div class="grid grid-cols-2 gap-7">
+					<div
+						class="flex flex-col items-center justify-center gap-y-2 rounded-2xl {gameTheme.opacityAccentBackgroundColor} p-5 transition-all hover:shadow-lg"
+					>
+						<h3 class="text-2xl">WPM</h3>
+						<span class="text-6xl text-yellow-500">{gameStates.wpm}</span>
+					</div>
+					<div
+						class="flex flex-col items-center justify-center gap-y-2 rounded-2xl bg-neutral-900/60 p-5 transition-all hover:shadow-lg {gameTheme.opacityAccentBackgroundColor}"
+					>
+						<h3 class="text-2xl">Accuracy</h3>
+						<span class="text-6xl text-yellow-500">{gameStates.accuracy}%</span>
+					</div>
+					<div
+						class="flex flex-col items-center justify-center gap-y-2 rounded-2xl bg-neutral-900/60 p-5 transition-all hover:shadow-lg {gameTheme.opacityAccentBackgroundColor}"
+					>
+						<h3 class="text-2xl">Characters</h3>
+						<div>
+							<p>Correct: {gameStates.correctChars}/{gameStates.totalChars}</p>
+							<p>
+								Incorrect: {gameStates.totalChars - gameStates.correctChars}/{gameStates.totalChars}
+							</p>
 						</div>
 					</div>
-					
-					<!-- Action Buttons -->
-					<div class="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
-						<button
-							onclick={() => {
-								clearInterval(timerInterval);
-								initGame();
-							}}
-							class="rounded-lg bg-blue-600 px-6 py-3 text-white transition-colors hover:bg-blue-700"
-						>
-							🔄 Practice Again
-						</button>
-						<a
-							href="/documents"
-							class="rounded-lg bg-gray-600 px-6 py-3 text-center text-white transition-colors hover:bg-gray-700"
-						>
-							📚 Back to Documents
-						</a>
-						<button
-							onclick={() => {
-								customPracticeStore.clearCustomPractice();
-								clearInterval(timerInterval);
-								initGame();
-							}}
-							class="rounded-lg bg-green-600 px-6 py-3 text-white transition-colors hover:bg-green-700"
-						>
-							🆕 Try Random Text
-						</button>
+					<div
+						class="flex flex-col items-center justify-center gap-y-2 rounded-2xl bg-neutral-900/60 p-5 transition-all hover:shadow-lg {gameTheme.opacityAccentBackgroundColor}"
+					>
+						<h3 class="text-2xl">Time</h3>
+						<span class="text-3xl text-yellow-500">{gameStates.timeElapsed}s</span>
 					</div>
 				</div>
-			{:else}
-				<Result {timerInterval} {initGame} {gameStates} {gameTheme} />
-			{/if}
+
+				<!-- Action Buttons -->
+				<div class="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
+					<button
+						onclick={() => {
+							clearInterval(timerInterval);
+							initGame();
+						}}
+						class="rounded-lg bg-blue-600 px-6 py-3 text-white transition-colors hover:bg-blue-700"
+					>
+						🔄 Practice Again
+					</button>
+					<a
+						href="/documents"
+						class="rounded-lg bg-gray-600 px-6 py-3 text-center text-white transition-colors hover:bg-gray-700"
+					>
+						📚 Back to Documents
+					</a>
+					<button
+						onclick={() => {
+							customPracticeStore.clearCustomPractice();
+							clearInterval(timerInterval);
+							initGame();
+						}}
+						class="rounded-lg bg-green-600 px-6 py-3 text-white transition-colors hover:bg-green-700"
+					>
+						🆕 Try Random Text
+					</button>
+				</div>
+			</div>
+		{:else}
+			<Result {timerInterval} {initGame} {gameStates} {gameTheme} />
 		{/if}
 	</div>
 </main>

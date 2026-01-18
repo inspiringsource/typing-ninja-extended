@@ -1,9 +1,9 @@
 {
 	"name": "ninja-typing",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"type": "module",
 	"engines": {
-		"node": ">=18.0.0 <21.0.0"
+		"node": ">=18.0.0"
 	},
 	"scripts": {
 		"dev": "vite dev",
@@ -16,7 +16,6 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.2.6",
-		"@sveltejs/adapter-vercel": "^5.8.1",
 		"@sveltejs/kit": "^2.26.1",
 		"@sveltejs/vite-plugin-svelte": "^4.0.4",
 		"@types/eslint": "^9.6.0",

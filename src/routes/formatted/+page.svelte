@@ -12,7 +12,7 @@
 	import ProgressIndicator from '$lib/features/home/components/progress-indicator.svelte';
 	import { themes } from '$lib/data';
 	import Header from '$lib/components/header.svelte';
-	import { customPracticeStore as formattedCustomPracticeStore } from '$lib/stores/custom-practice-store-formatted';
+	import { customPracticeStore as formattedCustomPracticeStore } from '$lib/stores/custom-practice-store';
 	import { documentStore } from '$lib/stores/document-store';
 
 	let gameStates = $state<FormattedGameState>({
@@ -37,29 +37,33 @@
 
 	let gameTheme = $state(themes[0]);
 	let recentKeys: string[] = $state([]);
-	let timerInterval = $state(0);
-	
+	let timerInterval: any = $state(0);
+
 	// Custom practice state for formatted text
 	let customPracticeState = $state({
 		isCustomPractice: false,
-		document: null as any,
-		customText: '',
+		document: null as import('../../type').DocumentWithPerformance | null,
+		customText: '' as string | string[],
 		isFormattedText: false
 	});
-	
+
 	// Syntax highlighting toggle protection
 	let syntaxToggleInProgress = $state(false);
 
 	// Subscribe to formatted custom practice store
-	formattedCustomPracticeStore.subscribe(state => {
+	formattedCustomPracticeStore.subscribe((state) => {
 		customPracticeState = state;
 	});
 
 	function initGame() {
 		clearInterval(timerInterval);
-		
+
 		// Use custom practice text if available, otherwise generate random text
-		if (customPracticeState.isCustomPractice && customPracticeState.customText) {
+		if (
+			customPracticeState.isCustomPractice &&
+			customPracticeState.customText &&
+			typeof customPracticeState.customText === 'string'
+		) {
 			gameStates.currentText = customPracticeState.customText;
 		} else {
 			// For formatted mode, create a sample formatted text
@@ -74,7 +78,7 @@
 console.log(fibonacci(10));`;
 			gameStates.currentText = sampleCode;
 		}
-		
+
 		gameStates.currentCharIndex = 0;
 		gameStates.userInput = '';
 		gameStates.accuracy = 100;
@@ -114,7 +118,7 @@ console.log(fibonacci(10));`;
 		gameStates.isFinish = true;
 		clearInterval(timerInterval);
 		updateWPM();
-		
+
 		// Save performance if in custom practice mode
 		if (customPracticeState.isCustomPractice && customPracticeState.document) {
 			documentStore.addPerformance(
@@ -149,11 +153,14 @@ console.log(fibonacci(10));`;
 
 		// Add the pressed key to recentKeys
 		if (key.length === 1 || key === 'Backspace' || key === 'Tab' || key === 'Enter') {
-			recentKeys = [...recentKeys, key === ' ' ? 'Space' : key === '\t' ? 'Tab' : key === '\n' ? 'Enter' : key];
+			recentKeys = [
+				...recentKeys,
+				key === ' ' ? 'Space' : key === '\t' ? 'Tab' : key === '\n' ? 'Enter' : key
+			];
 		}
 
 		const currentChar = gameStates.currentText[gameStates.currentCharIndex];
-		
+
 		if (key === 'Tab') {
 			e.preventDefault(); // Prevent tab from changing focus
 			// Insert 4 spaces instead of a tab character
@@ -172,7 +179,7 @@ console.log(fibonacci(10));`;
 	function handleTabInput() {
 		// When user presses Tab, we want to handle it as 4 spaces
 		const expectedChar = gameStates.currentText[gameStates.currentCharIndex];
-		
+
 		if (expectedChar === '\t') {
 			// If the expected character is a tab, treat the tab press as correct
 			// and add 4 spaces to user input to represent the tab
@@ -186,7 +193,7 @@ console.log(fibonacci(10));`;
 				handleCharacterInput(' ');
 			}
 		}
-		
+
 		// Check if finished typing all text
 		if (gameStates.currentCharIndex >= gameStates.currentText.length) {
 			stopGame();
@@ -195,13 +202,13 @@ console.log(fibonacci(10));`;
 
 	function handleCharacterInput(inputChar: string) {
 		const expectedChar = gameStates.currentText[gameStates.currentCharIndex];
-		
+
 		gameStates.userInput += inputChar;
 		gameStates.totalChars++;
-		
+
 		// Enhanced matching logic for tabs and spaces
 		let isCorrect = false;
-		
+
 		if (inputChar === expectedChar) {
 			// Direct match
 			isCorrect = true;
@@ -217,7 +224,7 @@ console.log(fibonacci(10));`;
 					break;
 				}
 			}
-			
+
 			if (trailingSpaces === 4) {
 				// User has typed 4 spaces, consider it a complete tab
 				isCorrect = true;
@@ -231,11 +238,11 @@ console.log(fibonacci(10));`;
 			// Regular mismatch
 			gameStates.currentCharIndex++;
 		}
-		
+
 		if (isCorrect) {
 			gameStates.correctChars++;
 		}
-		
+
 		// Check if finished typing all text
 		if (gameStates.currentCharIndex >= gameStates.currentText.length) {
 			stopGame();
@@ -245,15 +252,18 @@ console.log(fibonacci(10));`;
 	function handleBackspace() {
 		if (gameStates.userInput.length > 0) {
 			const removedChar = gameStates.userInput[gameStates.userInput.length - 1];
-			
+
 			// Remove the character from user input
 			gameStates.userInput = gameStates.userInput.slice(0, -1);
 			gameStates.totalChars = Math.max(0, gameStates.totalChars - 1);
-			
+
 			// Determine what expected character we're backing up from
 			const currentExpectedChar = gameStates.currentText[gameStates.currentCharIndex];
-			const previousExpectedChar = gameStates.currentCharIndex > 0 ? gameStates.currentText[gameStates.currentCharIndex - 1] : '';
-			
+			const previousExpectedChar =
+				gameStates.currentCharIndex > 0
+					? gameStates.currentText[gameStates.currentCharIndex - 1]
+					: '';
+
 			// Handle backspace logic for tabs vs regular characters
 			if (removedChar === ' ') {
 				// Check if we're backspacing within a tab sequence
@@ -265,7 +275,7 @@ console.log(fibonacci(10));`;
 						break;
 					}
 				}
-				
+
 				if (currentExpectedChar === '\t') {
 					// We're still within a tab that expects 4 spaces
 					gameStates.correctChars = Math.max(0, gameStates.correctChars - 1);
@@ -292,9 +302,10 @@ console.log(fibonacci(10));`;
 	}
 
 	function updateAccuracy() {
-		gameStates.accuracy = gameStates.totalChars > 0 
-			? Math.round((gameStates.correctChars / gameStates.totalChars) * 100) 
-			: 100;
+		gameStates.accuracy =
+			gameStates.totalChars > 0
+				? Math.round((gameStates.correctChars / gameStates.totalChars) * 100)
+				: 100;
 	}
 
 	$effect(() => {
@@ -305,15 +316,15 @@ console.log(fibonacci(10));`;
 
 	// Initialize the game state
 	initGame();
-	
+
 	// Protected syntax highlighting toggle
 	function toggleSyntaxHighlighting() {
 		if (syntaxToggleInProgress) return; // Prevent rapid toggling
 		if (gameStates.isPlaying) return; // Prevent toggling while typing
-		
+
 		syntaxToggleInProgress = true;
 		gameStates.isSyntaxHighlighted = !gameStates.isSyntaxHighlighted;
-		
+
 		// Release the lock after a short delay
 		setTimeout(() => {
 			syntaxToggleInProgress = false;
@@ -336,7 +347,9 @@ console.log(fibonacci(10));`;
 			<div class="mx-auto w-full max-w-4xl">
 				{#if customPracticeState.isCustomPractice}
 					<div class="mb-6 text-center">
-						<div class="inline-flex items-center gap-2 rounded-lg bg-blue-100 px-4 py-2 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+						<div
+							class="inline-flex items-center gap-2 rounded-lg bg-blue-100 px-4 py-2 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+						>
 							<span class="text-lg">📄</span>
 							<span class="font-medium">Formatted Practice:</span>
 							<span class="font-bold">{customPracticeState.document?.title}</span>
@@ -345,8 +358,12 @@ console.log(fibonacci(10));`;
 							<button
 								onclick={toggleSyntaxHighlighting}
 								disabled={syntaxToggleInProgress || gameStates.isPlaying}
-								class="inline-flex items-center gap-2 rounded-md px-3 py-1 text-sm font-medium transition-colors {gameStates.isSyntaxHighlighted ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'} hover:bg-purple-200 dark:hover:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed"
-								title={gameStates.isPlaying ? 'Cannot change highlighting during typing' : 'Toggle syntax highlighting'}
+								class="inline-flex items-center gap-2 rounded-md px-3 py-1 text-sm font-medium transition-colors {gameStates.isSyntaxHighlighted
+									? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+									: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'} hover:bg-purple-200 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-purple-800"
+								title={gameStates.isPlaying
+									? 'Cannot change highlighting during typing'
+									: 'Toggle syntax highlighting'}
 							>
 								<span class="text-xs">🎨</span>
 								{gameStates.isSyntaxHighlighted ? 'Disable' : 'Enable'} Syntax Highlighting
@@ -362,8 +379,8 @@ console.log(fibonacci(10));`;
 							>
 								← Exit Custom Practice
 							</button>
-							<a 
-								href="/documents" 
+							<a
+								href="/documents"
 								class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
 							>
 								📚 Back to Documents
@@ -372,14 +389,16 @@ console.log(fibonacci(10));`;
 					</div>
 				{:else}
 					<div class="mb-6 text-center">
-						<div class="inline-flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-green-800 dark:bg-green-900 dark:text-green-200">
+						<div
+							class="inline-flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-green-800 dark:bg-green-900 dark:text-green-200"
+						>
 							<span class="text-lg">💻</span>
 							<span class="font-medium">Formatted Text Mode</span>
 							<span class="text-sm">(Preserves tabs, spaces, and line breaks)</span>
 						</div>
 						<div class="mt-2">
-							<a 
-								href="/" 
+							<a
+								href="/"
 								class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
 							>
 								← Back to Regular Mode
@@ -387,7 +406,7 @@ console.log(fibonacci(10));`;
 						</div>
 					</div>
 				{/if}
-				
+
 				<Timer isPending={gameStates.isPending} timeElapsed={gameStates.timeElapsed} />
 
 				{#if gameStates.isSyntaxHighlighted}
@@ -405,7 +424,7 @@ console.log(fibonacci(10));`;
 						currentCharIndex={gameStates.currentCharIndex}
 					/>
 				{/if}
-				
+
 				{#if gameStates.isPending}
 					<div class="mt-10 flex flex-col items-center justify-center gap-y-5">
 						<Tooltip position="top" {gameTheme}>
@@ -419,7 +438,7 @@ console.log(fibonacci(10));`;
 						<p class="animate-pulse text-center text-xl {gameTheme.textColor}">
 							Press any key to start typing (Tab and Enter work too!)
 						</p>
-						<div class="text-sm text-gray-500 dark:text-gray-400 max-w-md text-center">
+						<div class="max-w-md text-center text-sm text-gray-500 dark:text-gray-400">
 							<p>✨ This mode preserves all formatting including:</p>
 							<p>• Line breaks and indentation</p>
 							<p>• <strong>Tab handling:</strong> Press Tab OR type 4 spaces</p>
@@ -435,7 +454,9 @@ console.log(fibonacci(10));`;
 		{:else}
 			<div class="mx-auto mt-36 w-full max-w-xl">
 				<div class="mb-6 text-center">
-					<div class="inline-flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-green-800 dark:bg-green-900 dark:text-green-200">
+					<div
+						class="inline-flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-green-800 dark:bg-green-900 dark:text-green-200"
+					>
 						<span class="text-lg">🎉</span>
 						<span class="font-medium">Formatted Practice Completed!</span>
 					</div>
@@ -445,7 +466,7 @@ console.log(fibonacci(10));`;
 						</p>
 					{/if}
 				</div>
-				
+
 				<!-- Results Grid -->
 				<div class="grid grid-cols-2 gap-7">
 					<div
@@ -466,7 +487,9 @@ console.log(fibonacci(10));`;
 						<h3 class="text-2xl">Characters</h3>
 						<div>
 							<p>Correct: {gameStates.correctChars}/{gameStates.totalChars}</p>
-							<p>Incorrect: {gameStates.totalChars - gameStates.correctChars}/{gameStates.totalChars}</p>
+							<p>
+								Incorrect: {gameStates.totalChars - gameStates.correctChars}/{gameStates.totalChars}
+							</p>
 						</div>
 					</div>
 					<div
@@ -476,7 +499,7 @@ console.log(fibonacci(10));`;
 						<span class="text-3xl text-yellow-500">{gameStates.timeElapsed}s</span>
 					</div>
 				</div>
-				
+
 				<!-- Action Buttons -->
 				<div class="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
 					<button

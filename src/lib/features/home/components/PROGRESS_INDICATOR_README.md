@@ -19,27 +19,27 @@ A complete Svelte component that displays typing progress with visual indicators
 
 ```svelte
 <script>
-  import ProgressIndicator from '$lib/features/home/components/progress-indicator.svelte';
-  
-  // Your typing test state
-  let gameStates = {
-    currentText: ['hello', 'world', 'typing', 'test'],
-    userInput: ['hello', 'wor', '', ''],
-    currentWordIndex: 1,
-    isPlaying: true,
-    isPending: false
-  };
-  
-  let gameTheme = themes[0]; // Your theme
+	import ProgressIndicator from '$lib/features/home/components/progress-indicator.svelte';
+
+	// Your typing test state
+	let gameStates = {
+		currentText: ['hello', 'world', 'typing', 'test'],
+		userInput: ['hello', 'wor', '', ''],
+		currentWordIndex: 1,
+		isPlaying: true,
+		isPending: false
+	};
+
+	let gameTheme = themes[0]; // Your theme
 </script>
 
 <ProgressIndicator
-  currentText={gameStates.currentText}
-  userInput={gameStates.userInput}
-  currentWordIndex={gameStates.currentWordIndex}
-  {gameTheme}
-  isPlaying={gameStates.isPlaying}
-  isPending={gameStates.isPending}
+	currentText={gameStates.currentText}
+	userInput={gameStates.userInput}
+	currentWordIndex={gameStates.currentWordIndex}
+	{gameTheme}
+	isPlaying={gameStates.isPlaying}
+	isPending={gameStates.isPending}
 />
 ```
 
@@ -51,19 +51,11 @@ The `progress.ts` utility module provides functions for calculating typing progr
 import { calculateTypingProgress, calculateProgressPercentage } from '$lib/utils/progress';
 
 // Basic progress percentage
-const percentage = calculateProgressPercentage(
-  ['hello', 'world', 'test'],
-  ['hello', 'wor', ''],
-  1
-);
+const percentage = calculateProgressPercentage(['hello', 'world', 'test'], ['hello', 'wor', ''], 1);
 console.log(percentage); // 73.3
 
 // Comprehensive progress data
-const progressData = calculateTypingProgress(
-  ['hello', 'world', 'test'],
-  ['hello', 'wor', ''],
-  1
-);
+const progressData = calculateTypingProgress(['hello', 'world', 'test'], ['hello', 'wor', ''], 1);
 console.log(progressData);
 /*
 {
@@ -91,25 +83,25 @@ The progress calculation is based on correctly typed characters across the entir
 ```typescript
 // For each word in the text
 for (let wordIndex = 0; wordIndex < currentText.length; wordIndex++) {
-  const word = currentText[wordIndex];
-  const input = userInput[wordIndex] || '';
-  
-  if (wordIndex < currentWordIndex) {
-    // Completed words: count all correct characters
-    for (let charIndex = 0; charIndex < Math.min(word.length, input.length); charIndex++) {
-      if (word[charIndex] === input[charIndex]) {
-        correctChars++;
-      }
-    }
-  } else if (wordIndex === currentWordIndex) {
-    // Current word: count correct characters typed so far
-    for (let charIndex = 0; charIndex < Math.min(word.length, input.length); charIndex++) {
-      if (word[charIndex] === input[charIndex]) {
-        correctChars++;
-      }
-    }
-  }
-  // Future words don't contribute to progress yet
+	const word = currentText[wordIndex];
+	const input = userInput[wordIndex] || '';
+
+	if (wordIndex < currentWordIndex) {
+		// Completed words: count all correct characters
+		for (let charIndex = 0; charIndex < Math.min(word.length, input.length); charIndex++) {
+			if (word[charIndex] === input[charIndex]) {
+				correctChars++;
+			}
+		}
+	} else if (wordIndex === currentWordIndex) {
+		// Current word: count correct characters typed so far
+		for (let charIndex = 0; charIndex < Math.min(word.length, input.length); charIndex++) {
+			if (word[charIndex] === input[charIndex]) {
+				correctChars++;
+			}
+		}
+	}
+	// Future words don't contribute to progress yet
 }
 ```
 
@@ -119,21 +111,21 @@ for (let wordIndex = 0; wordIndex < currentText.length; wordIndex++) {
 
 ```svelte
 <script>
-  import { calculateTypingProgress } from '$lib/utils/progress';
-  
-  export let currentText;
-  export let userInput;
-  export let currentWordIndex;
-  
-  $: progress = calculateTypingProgress(currentText, userInput, currentWordIndex);
+	import { calculateTypingProgress } from '$lib/utils/progress';
+
+	export let currentText;
+	export let userInput;
+	export let currentWordIndex;
+
+	$: progress = calculateTypingProgress(currentText, userInput, currentWordIndex);
 </script>
 
 <div class="my-progress-display">
-  <h3>Progress: {progress.progressPercentage}%</h3>
-  <div class="progress-bar">
-    <div style="width: {progress.progressPercentage}%"></div>
-  </div>
-  <p>Words: {progress.wordsCompleted} / {progress.totalWords}</p>
+	<h3>Progress: {progress.progressPercentage}%</h3>
+	<div class="progress-bar">
+		<div style="width: {progress.progressPercentage}%"></div>
+	</div>
+	<p>Words: {progress.wordsCompleted} / {progress.totalWords}</p>
 </div>
 ```
 
@@ -156,24 +148,24 @@ $: console.log('Progress:', progressStore.progress.progressPercentage + '%');
 
 ```svelte
 <script>
-  import { calculateProgressPercentage } from '$lib/utils/progress';
-  
-  // Your existing game state
-  let gameStates = $state({
-    currentText: [],
-    userInput: [],
-    currentWordIndex: 0,
-    // ... other properties
-  });
-  
-  // Add reactive progress calculation
-  $: currentProgress = calculateProgressPercentage(
-    gameStates.currentText,
-    gameStates.userInput,
-    gameStates.currentWordIndex
-  );
-  
-  // Use in your UI
+	import { calculateProgressPercentage } from '$lib/utils/progress';
+
+	// Your existing game state
+	let gameStates = $state({
+		currentText: [],
+		userInput: [],
+		currentWordIndex: 0
+		// ... other properties
+	});
+
+	// Add reactive progress calculation
+	$: currentProgress = calculateProgressPercentage(
+		gameStates.currentText,
+		gameStates.userInput,
+		gameStates.currentWordIndex
+	);
+
+	// Use in your UI
 </script>
 
 <div>Progress: {currentProgress.toFixed(1)}%</div>
@@ -209,10 +201,10 @@ To change the position, modify the CSS in the component:
 
 ```css
 .progress-container {
-  position: fixed;
-  top: 120px;
-  right: 20px;
-  /* Change position as needed */
+	position: fixed;
+	top: 120px;
+	right: 20px;
+	/* Change position as needed */
 }
 ```
 

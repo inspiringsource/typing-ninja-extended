@@ -59,7 +59,9 @@
 	const getPerformanceTrends = () => {
 		if (document.performances.length < 2) return null;
 
-		const sorted = [...document.performances].sort((a, b) => a.completedAt.getTime() - b.completedAt.getTime());
+		const sorted = [...document.performances].sort(
+			(a, b) => a.completedAt.getTime() - b.completedAt.getTime()
+		);
 		const latest = sorted[sorted.length - 1];
 		const previous = sorted[sorted.length - 2];
 
@@ -79,7 +81,11 @@
 	const getDifficultyAssessment = () => {
 		const content = document.content;
 		const wordCount = content.trim().split(/\s+/).length;
-		const avgWordLength = content.replace(/[^\w\s]/g, '').split(/\s+/).reduce((sum, word) => sum + word.length, 0) / wordCount;
+		const avgWordLength =
+			content
+				.replace(/[^\w\s]/g, '')
+				.split(/\s+/)
+				.reduce((sum, word) => sum + word.length, 0) / wordCount;
 		const punctuationDensity = (content.match(/[.,;:!?]/g) || []).length / content.length;
 		const numberDensity = (content.match(/\d/g) || []).length / content.length;
 
@@ -109,9 +115,7 @@
 	<!-- Header -->
 	<div class="viewer-header">
 		<div class="header-content">
-			<button class="back-btn" onclick={onBack}>
-				← Back to Documents
-			</button>
+			<button class="back-btn" onclick={onBack}> ← Back to Documents </button>
 			<div class="document-meta">
 				<h1 class="document-title">{document.title}</h1>
 				<div class="meta-info">
@@ -122,17 +126,11 @@
 				</div>
 			</div>
 		</div>
-		
+
 		<div class="header-actions">
-			<button class="btn btn-primary" onclick={onStartPractice}>
-				⌨️ Start Practice
-			</button>
-			<button class="btn btn-secondary" onclick={onEdit}>
-				✏️ Edit
-			</button>
-			<button class="btn btn-danger" onclick={onDelete}>
-				🗑️ Delete
-			</button>
+			<button class="btn btn-primary" onclick={onStartPractice}> ⌨️ Start Practice </button>
+			<button class="btn btn-secondary" onclick={onEdit}> ✏️ Edit </button>
+			<button class="btn btn-danger" onclick={onDelete}> 🗑️ Delete </button>
 		</div>
 	</div>
 
@@ -146,7 +144,7 @@
 					<div class="card-label">Words</div>
 				</div>
 			</div>
-			
+
 			<div class="overview-card">
 				<div class="card-icon">🔤</div>
 				<div class="card-content">
@@ -154,7 +152,7 @@
 					<div class="card-label">Characters</div>
 				</div>
 			</div>
-			
+
 			<div class="overview-card">
 				<div class="card-icon">📊</div>
 				<div class="card-content">
@@ -162,7 +160,7 @@
 					<div class="card-label">Difficulty</div>
 				</div>
 			</div>
-			
+
 			<div class="overview-card">
 				<div class="card-icon">🎯</div>
 				<div class="card-content">
@@ -189,33 +187,35 @@
 	{#if document.performances.length > 0}
 		<div class="performance-section">
 			<h3>Performance Statistics</h3>
-			
+
 			<div class="performance-summary">
 				<div class="stat-card">
 					<div class="stat-value">{formatStat(document.bestWpm)}</div>
 					<div class="stat-label">Best WPM</div>
 					{#if performanceTrends && performanceTrends.wpm !== 0}
 						<div class="stat-trend {performanceTrends.wpm > 0 ? 'trend-up' : 'trend-down'}">
-							{performanceTrends.wpm > 0 ? '↗' : '↘'} {Math.abs(performanceTrends.wpm).toFixed(1)}
+							{performanceTrends.wpm > 0 ? '↗' : '↘'}
+							{Math.abs(performanceTrends.wpm).toFixed(1)}
 						</div>
 					{/if}
 				</div>
-				
+
 				<div class="stat-card">
 					<div class="stat-value">{formatStat(document.bestAccuracy, '%')}</div>
 					<div class="stat-label">Best Accuracy</div>
 					{#if performanceTrends && performanceTrends.accuracy !== 0}
 						<div class="stat-trend {performanceTrends.accuracy > 0 ? 'trend-up' : 'trend-down'}">
-							{performanceTrends.accuracy > 0 ? '↗' : '↘'} {Math.abs(performanceTrends.accuracy).toFixed(1)}%
+							{performanceTrends.accuracy > 0 ? '↗' : '↘'}
+							{Math.abs(performanceTrends.accuracy).toFixed(1)}%
 						</div>
 					{/if}
 				</div>
-				
+
 				<div class="stat-card">
 					<div class="stat-value">{formatStat(document.averageWpm)}</div>
 					<div class="stat-label">Average WPM</div>
 				</div>
-				
+
 				<div class="stat-card">
 					<div class="stat-value">{formatStat(document.averageAccuracy, '%')}</div>
 					<div class="stat-label">Average Accuracy</div>
@@ -234,15 +234,22 @@
 							<div class="history-stats">
 								<span class="history-stat">{performance.wpm} WPM</span>
 								<span class="history-stat">{performance.accuracy.toFixed(1)}% accuracy</span>
-								<span class="history-stat">{Math.floor(performance.timeElapsed / 60)}:{(performance.timeElapsed % 60).toString().padStart(2, '0')}</span>
+								<span class="history-stat"
+									>{Math.floor(performance.timeElapsed / 60)}:{(performance.timeElapsed % 60)
+										.toString()
+										.padStart(2, '0')}</span
+								>
 							</div>
 						</div>
 					{/each}
 				</div>
-				
+
 				{#if document.performances.length > 5}
 					<div class="history-more">
-						And {document.performances.length - 5} more session{document.performances.length - 5 === 1 ? '' : 's'}...
+						And {document.performances.length - 5} more session{document.performances.length - 5 ===
+						1
+							? ''
+							: 's'}...
 					</div>
 				{/if}
 			</div>
