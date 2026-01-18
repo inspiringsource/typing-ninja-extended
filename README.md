@@ -13,7 +13,7 @@ Build upon Typing Ninja's minimalistic app with:
 
 ## Credits
 
-Typing Ninja Extended is based on [Typing Ninja](https://github.com/Kei-K/typing-ninja) by [Kei-K](https://github.com/Kei-K).
+Typing Ninja Extended is based on [Typing Ninja](https://github.com/Kei-K23/typing-ninja) by [Kei-K23](https://github.com/Kei-K23).
 Both projects are licensed under the MIT License.
 
 ## Original Tech Stack
